@@ -1,0 +1,30 @@
+/* Overall reading comfort */
+.markdown-source-view,
+.markdown-preview-view {
+  line-height: 1.75;
+}
+
+/* More space between bullet points */
+.markdown-preview-view li,
+.markdown-source-view .HyperMD-list-line {
+  margin-bottom: 0.4em;
+}
+
+/* More breathing room between paragraphs */
+.markdown-preview-view p {
+  margin-bottom: 1em;
+}
+
+/* Headings */
+.markdown-preview-view h1,
+.markdown-preview-view h2,
+.markdown-preview-view h3 {
+  margin-top: 1.4em;
+  margin-bottom: 0.7em;
+}
+
+/* Nested lists slightly more compact */
+.markdown-preview-view li > ul,
+.markdown-preview-view li > ol {
+  margin-top: 0.25em;
+}
