@@ -1,10 +1,8 @@
-## *Lecture 1 Introduction and Overview*
 
 
 
 
 
-## *Lecture 2 Syntax - The Form of Languages*
 
 
 ### Paradigms of Programming

@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "General/Cheatsheets - Shortform.md",
+                "file": "Parallel_Notes/3 - Caches and virtual memory.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Cheatsheets - Shortform"
+              "title": "3 - Caches and virtual memory"
             }
           }
         ]
@@ -188,28 +188,40 @@
       "bases:Create new base": false
     }
   },
-  "active": "eb8307ef9b4ebf9d",
+  "active": "85bbaabc0539e6a9",
   "lastOpenFiles": [
-    "General/Cheatsheets.md",
+    "Parallel_Notes/4 - Flynn’s taxonomy, shared & distributed memory.md",
+    "Parallel_Notes/3 - Caches and virtual memory.md",
+    "Images/{67CC496F-7BF9-44A3-9AFF-D489EF473A94}.png",
+    "Images/{06AB34C2-898A-4D0C-B096-1A661195A17C}.png",
+    "Images/{0D528236-9B53-440D-80D2-34802C49EB77}.png",
+    "Images/{00C31C97-FD87-45FE-9DE7-C4B313F55C9F}.png",
+    "Images/{0ACEE757-184D-4792-BCC7-0B020A4BAE03}.png",
+    "Images/{FCC877DB-1D97-4884-B1F2-C371465F4906}.png",
+    "Parallel_Notes/2 - The von Neumann computer.md",
+    "Images/{476B2365-5D34-4665-AC5F-49F960E5856F} 1.png",
+    "Images/{476B2365-5D34-4665-AC5F-49F960E5856F}.png",
+    "Parallel_Notes/1 - Introduction.md",
+    "Images/{6DDC53B9-1168-45DB-A067-A909B2122B9B}.png",
+    "Images/{E043B7DB-1DE2-420D-8530-FC3D48FCC85A}.png",
     "General/Cheatsheets - Shortform.md",
-    "Parallel_Notes/TDT4200 Notes.md",
-    "Low_level_Notes/TDT4258 notes.md",
     "Computer_Design_Notes/Scala and Chisel Notes.md",
-    "Programming_Languages_Notes/TDT4165 Notes.md",
+    "Programming_Languages_Notes/1 - Introduction and Overview.md",
+    "Programming_Languages_Notes/2 - Syntax; The Form of Languages.md",
+    "Programming_Languages_Notes/3 - Grammars, Derivations, Parse Trees, Scanning-Introduction to Oz.md",
+    "Parallel_Notes/5 - Instruction Level Parallelism.md",
+    "Parallel_Notes/TDT4200 Notes.md",
+    "Main().md",
+    "General/Cheatsheets.md",
+    "Low_level_Notes/TDT4258 notes.md",
     "General",
     "Images",
-    "Images/{890FB7F2-E0E3-461B-9934-FEF087693AC6}.png",
-    "Images/{86B53448-9C23-4279-8CFC-FB74EA7B2BF9}.png",
-    "Images/Screenshot 2026-08-27 at 12.33.24.png",
-    "obsidian_notes/{890FB7F2-E0E3-461B-9934-FEF087693AC6}.png",
-    "obsidian_notes/{86B53448-9C23-4279-8CFC-FB74EA7B2BF9}.png",
     "obsidian_notes/Programming_Languages_Notes/TDT4165 Notes.md",
     "obsidian_notes/Programming_Languages_Notes",
     "obsidian_notes/Parallel_Notes/TDT4200 Notes.md",
     "obsidian_notes/Parallel_Notes",
     "obsidian_notes/Low_level_Notes/TDT4258 notes.md",
     "obsidian_notes/Low_level_Notes",
-    "obsidian_notes/Computer_Design_Notes/Screenshot 2026-08-27 at 12.33.24.png",
     "obsidian_notes/Computer_Design_Notes/Scala and Chisel Notes.md",
     "obsidian_notes/Computer_Design_Notes",
     "obsidian_notes"
