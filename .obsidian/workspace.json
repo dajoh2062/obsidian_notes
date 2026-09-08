@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Parallel_Notes/5 - Flynn’s taxonomy, shared & distributed memory.md",
+                "file": "Low_level_Notes/ARMv7 Assembly Cheatsheet.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "5 - Flynn’s taxonomy, shared & distributed memory"
+              "title": "ARMv7 Assembly Cheatsheet"
             }
           }
         ]
@@ -190,16 +190,17 @@
   },
   "active": "eb8307ef9b4ebf9d",
   "lastOpenFiles": [
-    "Parallel_Notes/4 - Instruction Level Parallelism.md",
-    "{8FDF5466-4354-4205-8E0D-421CD614626F}.png",
-    "{2512ABCD-7CA4-413C-A4A1-75192907F21D} 1.png",
-    "{2512ABCD-7CA4-413C-A4A1-75192907F21D}.png",
-    "{8F6B2A1D-F342-4FA7-98BC-3B796167828F}.png",
-    "{AC90617E-6CFA-48C4-8AE0-3CD537D291A7}.png",
-    "{6DE86BEB-A491-4240-8678-A4CBD20FB215}.png",
-    "{E495AF38-A333-4E1E-9983-B75FC1D581D2}.png",
-    "Parallel_Notes/3 - Caches and virtual memory.md",
     "Parallel_Notes/5 - Flynn’s taxonomy, shared & distributed memory.md",
+    "Low_level_Notes/ARMv7 Assembly Cheatsheet.md",
+    "Parallel_Notes/4 - Instruction Level Parallelism.md",
+    "Images/{8FDF5466-4354-4205-8E0D-421CD614626F}.png",
+    "Images/{2512ABCD-7CA4-413C-A4A1-75192907F21D} 1.png",
+    "Images/{2512ABCD-7CA4-413C-A4A1-75192907F21D}.png",
+    "Images/{8F6B2A1D-F342-4FA7-98BC-3B796167828F}.png",
+    "Images/{AC90617E-6CFA-48C4-8AE0-3CD537D291A7}.png",
+    "Images/{6DE86BEB-A491-4240-8678-A4CBD20FB215}.png",
+    "Images/{E495AF38-A333-4E1E-9983-B75FC1D581D2}.png",
+    "Parallel_Notes/3 - Caches and virtual memory.md",
     "Parallel_Notes/TDT4200 Notes.md",
     "Parallel_Notes/1 - Introduction.md",
     "Parallel_Notes/2 - The von Neumann computer.md",
