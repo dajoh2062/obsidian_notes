@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Low_level_Notes/ARMv7 Assembly Cheatsheet.md",
+                "file": "Computer_Design_Notes/2 - Instruction Set Architecture (ISA).md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "ARMv7 Assembly Cheatsheet"
+              "title": "2 - Instruction Set Architecture (ISA)"
             }
           }
         ]
@@ -188,30 +188,33 @@
       "bases:Create new base": false
     }
   },
-  "active": "eb8307ef9b4ebf9d",
+  "active": "85bbaabc0539e6a9",
   "lastOpenFiles": [
-    "Parallel_Notes/5 - Flynn’s taxonomy, shared & distributed memory.md",
-    "Low_level_Notes/ARMv7 Assembly Cheatsheet.md",
-    "Parallel_Notes/4 - Instruction Level Parallelism.md",
-    "Images/{8FDF5466-4354-4205-8E0D-421CD614626F}.png",
-    "Images/{2512ABCD-7CA4-413C-A4A1-75192907F21D} 1.png",
-    "Images/{2512ABCD-7CA4-413C-A4A1-75192907F21D}.png",
-    "Images/{8F6B2A1D-F342-4FA7-98BC-3B796167828F}.png",
-    "Images/{AC90617E-6CFA-48C4-8AE0-3CD537D291A7}.png",
-    "Images/{6DE86BEB-A491-4240-8678-A4CBD20FB215}.png",
-    "Images/{E495AF38-A333-4E1E-9983-B75FC1D581D2}.png",
+    "Computer_Design_Notes/1 - Trends and performance.md",
+    "Images/{85E546B0-5FDC-4D78-BA91-944BD7A4E53B}.png",
+    "Images/{4845F25D-1F77-4F83-B38C-157C15DC2C92}.png",
+    "Images/{F48B5FC6-83EE-4AA3-B131-E4F31FD96264}.png",
+    "Images/{336EDC4E-BB5E-4454-8157-8A4690DB0524}.png",
+    "Images/{0CADBA58-181C-4587-BACA-840B95F3F9E0}.png",
+    "Images/{F863EBB6-6875-453C-848D-CAE9E180BC0A}.png",
+    "Images/{CB430590-79E4-4BD7-BDA7-1864CA7EA3BB}.png",
+    "Images/{6CB0FFEE-1C03-42A4-A0BA-8F432C578E58}.png",
+    "Images/{306E64B5-B513-4418-8D63-F9F5263ECA8F}.png",
+    "Images/{D9E7E159-37D4-4898-AD72-AB9D0D176845}.png",
+    "Computer_Design_Notes/2 - Instruction Set Architecture (ISA).md",
+    "Computer_Design_Notes/3 - Single-cycle Datapath and Pipelining.md",
     "Parallel_Notes/3 - Caches and virtual memory.md",
+    "Parallel_Notes/2 - The von Neumann computer.md",
+    "Programming_Languages_Notes/3 - Grammars, Derivations, Parse Trees, Scanning-Introduction to Oz.md",
+    "Programming_Languages_Notes/2 - Syntax; The Form of Languages.md",
+    "Programming_Languages_Notes/1 - Introduction and Overview.md",
+    "Low_level_Notes/ARMv7 Assembly Cheatsheet.md",
+    "Parallel_Notes/5 - Flynn’s taxonomy, shared & distributed memory.md",
+    "Parallel_Notes/4 - Instruction Level Parallelism.md",
     "Parallel_Notes/TDT4200 Notes.md",
     "Parallel_Notes/1 - Introduction.md",
-    "Parallel_Notes/2 - The von Neumann computer.md",
-    "Images/{67CC496F-7BF9-44A3-9AFF-D489EF473A94}.png",
-    "Images/{06AB34C2-898A-4D0C-B096-1A661195A17C}.png",
-    "Images/{0D528236-9B53-440D-80D2-34802C49EB77}.png",
     "General/Cheatsheets - Shortform.md",
     "Computer_Design_Notes/Scala and Chisel Notes.md",
-    "Programming_Languages_Notes/1 - Introduction and Overview.md",
-    "Programming_Languages_Notes/2 - Syntax; The Form of Languages.md",
-    "Programming_Languages_Notes/3 - Grammars, Derivations, Parse Trees, Scanning-Introduction to Oz.md",
     "Main().md",
     "General/Cheatsheets.md",
     "Low_level_Notes/TDT4258 notes.md",
