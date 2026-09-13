@@ -67,3 +67,36 @@ Addressing modes summary:
 - LUI (load upper immediate) instruction can support 32 bit immediate. 
 
 ### ISA operations
+![[Screenshot 2026-09-13 at 11.06.26.png]]![[Screenshot 2026-09-13 at 11.07.14.png]]
+
+Operand size is typically determined by the operation:
+- Integer arithmetic: 32 or 64-bit words.
+- Floating point: Single or double precision IEEE (32 or 64 bit).
+- Characters: 8 bit ascii or 16+ bit unicode.
+- Business applications: binary code decimal.
+
+![[Screenshot 2026-09-13 at 11.10.48.png]]
+
+### Instruction for control flow
+
+![[Screenshot 2026-09-13 at 11.15.28.png]]
+
+![[Screenshot 2026-09-13 at 11.19.06.png]]
+
+Basic block:
+- Sequence of instructions with no embedded branches (except at the end).
+- And no branch targets (except at beginning).
+
+Types of control flow:
+- Conditional branches.
+- Jumps (unconditional branches).
+- Procedure calls.
+- Procedure returns.
+
+Specifying branch-addresses:
+- Explicit: Commonly offset to the PC. Advantage is the branch target is usually close in location, and branch is independent of where the program was loaded in memory.
+- Implicit: Useful when the branch target is not known at compile time. Use register or other addressing mode to specify location.
+
+Branch distance:
+- Usually short under 10 bits of discplacement from PC.
+
