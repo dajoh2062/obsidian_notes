@@ -99,4 +99,66 @@ Specifying branch-addresses:
 
 Branch distance:
 - Usually short under 10 bits of discplacement from PC.
+- If branch target is too far away to encode with a 13-bit signed offset you cannot use the branch instruction directly. Branches have a 12 bit immediate. 
+![[{6D6B25FF-3598-4139-B9D7-424D613B0CD0}.png]]
+How to specify the branch target:![[{41FA1C1D-827D-46C5-BEB5-89E3E8BEA0E1}.png]]
+Common comparisons in this compiler + architecture:
+![[{A7EE32E8-3133-4E5C-9A64-E8BB2578BD2B}.png]]
+There are two main types of registers:
+- Caller-saved registers: If the caller wants their values preserved, the caller must save them before the call. The callee is allowed to overwrite them.
+- Callee-saved registers: If the callee wants to use them, the callee must first save their old values and restore them before returning.
 
+Memory layout:
+- Text: Program code.
+- Static data: Global variables. 
+- Dynamic data / heap: Allocated memory.
+- Stack: Automatic memory.![[{C2F49EE9-C131-4557-AF36-FBF9B23F7212}.png|182]]
+ISA observations:
+- Leaning towards a load-store architecture.
+- Displacement, immediate and register indirect addressing modes.
+- Support 8-, 16-, 32- and 64-bit integers, and 32- and 64-bit floating point.
+- Need instructions for: 
+	- Simple operations (arithmetic, load, store, etc.).
+	- PC-relative conditional branches.
+	- Jump and link instructions for procedure calls.
+	- Register indirect jumps for procedure return.
+
+ISA Encoding:
+- Need to balance the desire to have many registers and addressing modes, smaller programs with fewer needed addressing modes and instructions being easy to decode.
+- Embedded devices have limited memory, and having 32 bit fixed instructions waste memory.
+- Response: Variable length instruction sets.
+
+### Compilers
+![[{CE13024E-6C8E-48AA-B2A2-52D1D34D508F}.png]]
+Performance impact:
+![[{AE6A3A7F-8EAF-471C-A181-3CEB6D9E14B9}.png]]
+
+How can Architects help compilers 
+- Provide regularity: ISAs should be orthogonal/independent. That means all instructions support all addressing modes.
+- Provide primitives, not solutions.
+- Simplify trade-offs between alternatives.
+- Provide instructions that bind quantities known at compile time as constants.
+
+### The RISC-V Isa
+
+RISC-V Choices: 
+- General purpose register model.
+- Load-store architecture.
+- Supports displacement, immediate and register-indirect addressing.
+- 8, 16, 32 and 62 bit integers or 32/64 bit floating point data types.
+- Focus on the simple dominating instructions load, store, add, subtract, move register-register and shift.
+- Branching and compare according to the analysis.
+- At least 16, but preferably 32 registers.
+- Orthogonal, minimalist ISA.
+- Our Dialect/focus is RV32I. Functionality includes base 32-bit integer instruction set with 32 registers.
+
+Operand Types:
+![[{F41306D5-5F0A-476F-9317-27970855D7F4}.png|595]]
+![[{57598F1E-FF34-453A-B091-94FA9BBC1AC7}.png]]
+
+RISC-V data transfer instructions:![[{EFC31C01-829B-486F-B121-CA98CA1D9099}.png]]
+
+
+RISC-V ALU Instructions:![[{A6D6442D-8331-4BC3-8978-BE191CCC418B}.png]]
+RISC-V Control instructions:
+![[{2E42BFE5-5696-4B86-AC14-CC38E53FCA70}.png]]
