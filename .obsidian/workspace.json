@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Computer_Design_Notes/3 - Single-cycle Datapath and Pipelining.md",
+                "file": "Parallel_Notes/4 - Instruction Level Parallelism.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "3 - Single-cycle Datapath and Pipelining"
+              "title": "4 - Instruction Level Parallelism"
             }
           }
         ]
@@ -83,8 +83,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300,
-    "collapsed": true
+    "width": 300
   },
   "right": {
     "id": "99259698128e5234",
@@ -191,33 +190,32 @@
   },
   "active": "eb8307ef9b4ebf9d",
   "lastOpenFiles": [
-    "{5FBCB519-E438-400C-B5F1-20A83F4E32B5}.png",
-    "{9266D360-7850-474C-8991-887E705498D8}.png",
-    "{D615E41E-8E4E-4A51-B263-AD2EA241D7F7}.png",
-    "{0510CB2E-D6C8-4BE1-89E0-452488EC9DAA}.png",
-    "{BD18CD9D-0942-4A71-8D45-6FB427830B18}.png",
+    "Parallel_Notes/3 - Caches and virtual memory.md",
+    "Parallel_Notes/5 - Flynn’s taxonomy, shared & distributed memory.md",
+    "Main.md",
+    "Programming_Languages_Notes/3 - Grammars, Derivations, Parse Trees, Scanning-Introduction to Oz.md",
+    "Parallel_Notes/2 - The von Neumann computer.md",
+    "Computer_Design_Notes/3 - Single-cycle Datapath and Pipelining.md",
+    "Images/{F41306D5-5F0A-476F-9317-27970855D7F4}.png",
+    "Images/{EFC31C01-829B-486F-B121-CA98CA1D9099}.png",
+    "Images/{D615E41E-8E4E-4A51-B263-AD2EA241D7F7}.png",
+    "Images/{CE13024E-6C8E-48AA-B2A2-52D1D34D508F}.png",
+    "Images/{C2F49EE9-C131-4557-AF36-FBF9B23F7212}.png",
+    "Images/{BD18CD9D-0942-4A71-8D45-6FB427830B18}.png",
+    "Images/{AE6A3A7F-8EAF-471C-A181-3CEB6D9E14B9}.png",
+    "Images/{A7EE32E8-3133-4E5C-9A64-E8BB2578BD2B}.png",
+    "Images/{A6D6442D-8331-4BC3-8978-BE191CCC418B}.png",
+    "Images/{9266D360-7850-474C-8991-887E705498D8}.png",
     "Computer_Design_Notes/Scala and Chisel Notes.md",
     "Computer_Design_Notes/2 - Instruction Set Architecture (ISA).md",
-    "{2E42BFE5-5696-4B86-AC14-CC38E53FCA70}.png",
-    "{A6D6442D-8331-4BC3-8978-BE191CCC418B}.png",
-    "{EFC31C01-829B-486F-B121-CA98CA1D9099}.png",
-    "{57598F1E-FF34-453A-B091-94FA9BBC1AC7}.png",
-    "{F41306D5-5F0A-476F-9317-27970855D7F4}.png",
-    "{AE6A3A7F-8EAF-471C-A181-3CEB6D9E14B9}.png",
-    "Computer_Design_Notes/3 - Single-cycle Datapath and Pipelining.md",
     "Computer_Design_Notes/1 - Trends and performance.md",
-    "Parallel_Notes/3 - Caches and virtual memory.md",
-    "Parallel_Notes/2 - The von Neumann computer.md",
-    "Programming_Languages_Notes/3 - Grammars, Derivations, Parse Trees, Scanning-Introduction to Oz.md",
     "Programming_Languages_Notes/2 - Syntax; The Form of Languages.md",
     "Programming_Languages_Notes/1 - Introduction and Overview.md",
     "Low_level_Notes/ARMv7 Assembly Cheatsheet.md",
-    "Parallel_Notes/5 - Flynn’s taxonomy, shared & distributed memory.md",
     "Parallel_Notes/4 - Instruction Level Parallelism.md",
     "Parallel_Notes/TDT4200 Notes.md",
     "Parallel_Notes/1 - Introduction.md",
     "General/Cheatsheets - Shortform.md",
-    "Main().md",
     "General/Cheatsheets.md",
     "Low_level_Notes/TDT4258 notes.md",
     "General",
