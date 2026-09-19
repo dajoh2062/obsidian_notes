@@ -272,3 +272,4 @@ Traps:
 - Used to request operating-system services.
 - In the lecture’s ARM terminology, the SWI instruction generates a trap.
 
+39
