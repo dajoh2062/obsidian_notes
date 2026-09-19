@@ -1,10 +1,9 @@
 
 
 TODO:
-- Oblig oppgave programmeringspråk
 - Slides maskinnær
 - slides Datamaskinkonstruksjon.
-- Oppgave i datamaskinkonstruksjon
+- Oblig 1 datakonstruksjon demonstrasjon
 - søke sommerjobber. 
 - Pensum,
 
