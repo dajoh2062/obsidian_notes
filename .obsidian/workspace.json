@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Computer_Design_Notes/RISC-V Project notes.md",
+                "file": "Low_level_Notes/5 - More C programming, caches, virtual memory.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "RISC-V Project notes"
+              "title": "5 - More C programming, caches, virtual memory"
             }
           }
         ]
@@ -83,7 +83,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 330.0026054382324
   },
   "right": {
     "id": "99259698128e5234",
@@ -190,28 +190,29 @@
   },
   "active": "eb8307ef9b4ebf9d",
   "lastOpenFiles": [
+    "{48B0D3B7-8F18-4A89-BF17-1B9289FA9CDD}.png",
+    "{0E0CF499-571E-443E-B192-FE2ED426F734}.png",
+    "{46DEBEE6-C298-4279-8D9E-6A5CBD3313ED}.png",
+    "{7E7C6161-AB71-4034-A03B-E037DC32CA6C}.png",
+    "{968F8699-EED9-4C74-AEB6-F608C3EBC96E}.png",
+    "{80115575-723A-44D4-8ED8-B0B2A9790422}.png",
+    "Main.md",
+    "Low_level_Notes/5 - More C programming, caches, virtual memory.md",
+    "Computer_Design_Notes/RISC-V Project notes.md",
     "Images/{F5B1DFD5-CF35-41E3-B456-9F8ADADF794F}.png",
     "Images/{F5B1DFD5-CF35-41E3-B456-9F8ADADF794F} 1.png",
     "Images/{EAF278B3-B1EE-4B53-B117-6E88D098DF08}.png",
     "Images/{E5FDCEA5-B65B-4DAE-A3A3-26EE1CFADBB0}.png",
     "Images/{D8100626-3BF8-4A5C-AB3B-DF509481F38A}.png",
-    "Images/{CD70D42F-1BB4-48CA-8942-7DA853272A8F}.png",
-    "Images/{CCF3EA9F-4B9C-4537-896A-696B049B1ABB}.png",
-    "Images/{CB58FB66-702B-4473-92F3-5043EA0068C5}.png",
-    "Images/{BE041619-923E-448D-8CA1-15C684F3B08F}.png",
-    "Images/{B82E4A9B-581E-4857-8DDF-7527165CA065}.png",
-    "Images/{AF8CC20E-2F34-413A-A80A-2652F89BAF5E}.png",
     "Computer_Design_Notes/2 - Instruction Set Architecture (ISA).md",
     "Computer_Design_Notes/3 - Single-cycle Datapath and Pipelining.md",
     "Low_level_Notes/2- More assembly and input output devices.md",
-    "Computer_Design_Notes/RISC-V Project notes.md",
     "Parallel_Notes/4 - Instruction Level Parallelism.md",
     "Low_level_Notes/4 - Introduction to C programming.md",
     "Low_level_Notes/3 - Processor and memory.md",
     "Low_level_Notes/1 - Introduction to Embedded systems and ARM assembly language.md",
     "Parallel_Notes/3 - Caches and virtual memory.md",
     "Parallel_Notes/5 - Flynn’s taxonomy, shared & distributed memory.md",
-    "Main.md",
     "Programming_Languages_Notes/3 - Grammars, Derivations, Parse Trees, Scanning-Introduction to Oz.md",
     "Parallel_Notes/2 - The von Neumann computer.md",
     "Computer_Design_Notes/Scala and Chisel Notes.md",
@@ -228,7 +229,6 @@
     "Images",
     "obsidian_notes/Programming_Languages_Notes/TDT4165 Notes.md",
     "obsidian_notes/Programming_Languages_Notes",
-    "obsidian_notes/Parallel_Notes/TDT4200 Notes.md",
     "obsidian_notes/Parallel_Notes",
     "obsidian_notes/Low_level_Notes",
     "obsidian_notes/Computer_Design_Notes",

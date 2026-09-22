@@ -1,23 +1,19 @@
 
 
 TODO:
-- Slides maskinnær
-- slides Datamaskinkonstruksjon.
-- Oblig 1 datakonstruksjon demonstrasjon
-- søke sommerjobber. 
-- Pensum,
-
-TODO +1w:
-- oblig 3 parallelle
+- ukesoppgaver parallelle
 - oblig 2 datamaskin konstruksjon
 - slides parallelle
 - søke sommerjobber
 - Pensum
 
-TODO +2w:
+TODO +1w:
 - oblig 2 maskinnær
 - demonstrere oblig 2 datakont
 - slides programmeringspråk
+- pensum
+- søker sommerjobber
+- bedøk
 ### Oppgaver og innleveringer:
 
 Peer review 4 datamaskin konstruksjon torsdag 23
