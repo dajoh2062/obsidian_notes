@@ -9,8 +9,8 @@ TODO:
 
 TODO +1w:
 - oblig 2 maskinnær
-- demonstrere oblig 2 datakont
-- slides programmeringspråk
+- demonstrere oblig maskinnær
+- slides parallel
 - pensum
 - søker sommerjobber
 - bedøk
