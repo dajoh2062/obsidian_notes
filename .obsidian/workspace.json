@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Computer_Design_Notes/5 - Branch prediction.md",
+                "file": "Parallel_Notes/6 - Speedup, efficiency and scalability.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "5 - Branch prediction"
+              "title": "6 - Speedup, efficiency and scalability"
             }
           }
         ]
@@ -83,7 +83,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 330.0026054382324
+    "width": 330.0026054382324,
+    "collapsed": true
   },
   "right": {
     "id": "99259698128e5234",
@@ -190,19 +191,24 @@
   },
   "active": "eb8307ef9b4ebf9d",
   "lastOpenFiles": [
-    "{7E20FD72-E833-4F7C-8776-A9ED5464C5BB}.png",
-    "{C1CBCCA6-62F7-4050-BA20-6B87392E4499}.png",
-    "{544BA485-4105-4445-B6A8-ECDFEB7D7A4F}.png",
-    "{8CFBCCF2-8975-4630-9617-450C93B9CED6}.png",
-    "{C2B1F314-84A8-4202-AA96-FB6D99839CA2}.png",
-    "{46D28C07-4BF7-4A80-BC3C-472DE112D7B3}.png",
-    "{49388A75-E2D2-4A8B-A957-80902416BCC2}.png",
-    "{E121ACBF-EC2A-45E9-9ECF-A7AB0086C2A7}.png",
-    "{2C719654-0CC6-4BDE-B590-9464784ADC94}.png",
-    "Computer_Design_Notes/4 - Out-of-order execution.md",
+    "Parallel_Notes/7 - The advection equation.md",
+    "Parallel_Notes/5 - Flynn’s taxonomy, shared & distributed memory.md",
+    "Main.md",
+    "Parallel_Notes/6 - Speedup, efficiency and scalability.md",
+    "{EF93969B-23B3-44C8-8CE3-D3176E83DF3D}.png",
+    "{72E1D5C8-0708-4BFB-A8A8-0845C0E198A8}.png",
+    "{FC50D257-9EFF-44D0-A088-E30E46685E16}.png",
+    "{B4370E21-C833-4936-A051-ABF572E79BA2}.png",
+    "{02AB5AF1-FBEA-4BED-8D41-8A5CD3B248CE}.png",
+    "{C9313E53-F113-4152-BAD5-7E6651E1C0E3}.png",
+    "Parallel_Notes/8 - Concepts of MPI.md",
+    "{E3DD4DC2-C170-4709-8351-18FE7740EDC4}.png",
+    "{C01BF956-89B1-4AD8-B09B-304382057019}.png",
+    "{32624791-F25B-40EF-9871-809A32EC5D83}.png",
+    "{E6A07B1E-F420-40A8-AF2A-B13C4F8D9F56}.png",
+    "Parallel_Notes/4 - Instruction Level Parallelism.md",
     "Computer_Design_Notes/5 - Branch prediction.md",
-    "{4039B2E4-EBFF-476B-A0AB-40ECEF55C3B8}.png",
-    "{1526C6F0-0D95-46DB-BEF0-F9A1707FDCF3}.png",
+    "Computer_Design_Notes/4 - Out-of-order execution.md",
     "Parallel_Notes/2 - The von Neumann computer.md",
     "Parallel_Notes/1 - Introduction.md",
     "Low_level_Notes/1 - Introduction to Embedded systems and ARM assembly language.md",
@@ -214,18 +220,12 @@
     "Low_level_Notes/4 - Introduction to C programming.md",
     "Low_level_Notes/3 - Processor and memory.md",
     "Low_level_Notes/2- More assembly and input output devices.md",
-    "Main.md",
     "Programming_Languages_Notes/2 - Syntax; The Form of Languages.md",
     "Programming_Languages_Notes/3 - Grammars, Derivations, Parse Trees, Scanning-Introduction to Oz.md",
     "Computer_Design_Notes/RISC-V Project notes.md",
     "Computer_Design_Notes/3 - Single-cycle Datapath and Pipelining.md",
-    "Parallel_Notes/4 - Instruction Level Parallelism.md",
     "Parallel_Notes/3 - Caches and virtual memory.md",
-    "Parallel_Notes/5 - Flynn’s taxonomy, shared & distributed memory.md",
     "Programming_Languages_Notes/1 - Introduction and Overview.md",
-    "Parallel_Notes/TDT4200 Notes.md",
-    "General/Cheatsheets - Shortform.md",
-    "General/Cheatsheets.md",
     "General",
     "Images",
     "obsidian_notes/Programming_Languages_Notes",
