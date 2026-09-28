@@ -44,4 +44,27 @@ Comparing Ts and Tp:
 
 Amdahls law:
 - If we had as many processors as we wanted, it would mean we can only speed up the program a maximum of 1/f. 
+- Slight flaw: Argument is based on solving the same, fixed problem on any computer. Assumes constant serial time.
 ![[{EF93969B-23B3-44C8-8CE3-D3176E83DF3D}.png]]
+
+Gustafsons law:
+- If we increase processor count, and problem size, how much more work can we do (depending on fraction of parallel operations).
+![[Screenshot 2026-09-28 at 13.18.38.png]]
+Speedup vs scaled speedup:
+- Speedup: I can do the same amount of work in 1/x time.
+- Scaled speedup: I can do x times the work in the same amount of time.
+- Parallel efficiency: Amount of speedup divided evenly among the processor count. Drops in practise with growing p.
+![[Screenshot 2026-09-28 at 13.26.55.png|288]]
+
+Modes of scalability:
+- Strong scaling: how speedup changes with processor count.
+- Weak scaling: how scaled speedup changes with processor count.
+
+Quality vs. quantity:
+- Horizontal scaling: Upgrade system with more of the same components you had from before. Improves the parallel part of execution.
+- Vertical scaling: Upgrade components with more powerful units. Improves sequential part of program.
+
+Theory vs. practise:
+- We assume that the parallel part can always be evenly and easily distributed amongst any number of processor.
+- Gustafson pretends we can grow the parallel workload without increasing the sequential.
+- It means that sometimes, using \(p\) processors can make a program run more than \(p\) times faster than using one processor (superlinear speedup).
