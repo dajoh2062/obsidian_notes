@@ -1,19 +1,30 @@
 
 
 TODO:
-- ukesoppgaver parallelle
-- oblig 2 datamaskin konstruksjon
+- Oblig 2 maskinnær
+- oblig 3 oz
 - slides parallelle
+- slides maskinnær
+- datakonstruksjonsoppgaver
+- bedøk
 - søke sommerjobber
 - Pensum
 
 TODO +1w:
-- oblig 2 maskinnær
-- demonstrere oblig maskinnær
-- slides parallel
-- pensum
-- søker sommerjobber
+- Intervju klp
+- oblig 4 parallel
+- slides oz
+- datakonstruksjonsoppgaver
 - bedøk
+- søke sommerjobber
+- Pensum
+
+TODO +2w:
+- milestone 3 chisel
+- datakonstruksjonsoppgaver
+- bedøk
+- søke sommerjobber
+- Pensum
 ### Oppgaver og innleveringer:
 
 Peer review 4 datamaskin konstruksjon torsdag 23
