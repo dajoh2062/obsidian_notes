@@ -1,18 +1,16 @@
 
 
 TODO:
-- Oblig 2 maskinnær
-- oblig 3 oz
+- intervju køå
+- oblig 4 parallel
+- oblig datakonstruksjon m3
 - slides parallelle
 - slides maskinnær
-- datakonstruksjonsoppgaver
 - bedøk
 - søke sommerjobber
 - Pensum
 
 TODO +1w:
-- Intervju klp
-- oblig 4 parallel
 - slides oz
 - datakonstruksjonsoppgaver
 - bedøk
@@ -20,7 +18,6 @@ TODO +1w:
 - Pensum
 
 TODO +2w:
-- milestone 3 chisel
 - datakonstruksjonsoppgaver
 - bedøk
 - søke sommerjobber

@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Parallel_Notes/12 - Point-to-point communication modes.md",
+                "file": "Main.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "12 - Point-to-point communication modes"
+              "title": "Main"
             }
           }
         ]
@@ -83,8 +83,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 260.8359184265137,
-    "collapsed": true
+    "width": 260.8359184265137
   },
   "right": {
     "id": "99259698128e5234",
@@ -191,12 +190,12 @@
   },
   "active": "eb8307ef9b4ebf9d",
   "lastOpenFiles": [
+    "Parallel_Notes/12 - Point-to-point communication modes.md",
     "Parallel_Notes/TDT4200 Notes.md",
     "Parallel_Notes/8 - Concepts of MPI.md",
     "Parallel_Notes/9 - Six function MPI with point-to-point communication.md",
     "Parallel_Notes/10 - Advection Equation with MPI.md",
     "Parallel_Notes/11 - Collective operations.md",
-    "Parallel_Notes/12 - Point-to-point communication modes.md",
     "Parallel_Notes/Untitled.md",
     "{4845E341-F51D-43CD-8B5E-82509B6D516A}.png",
     "{34AEEE24-4059-4460-B730-5BA2D82A61E5}.png",
