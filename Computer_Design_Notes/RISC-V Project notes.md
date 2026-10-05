@@ -94,3 +94,11 @@ LW flow (lw x5, 8(x2) → loads the value at address x2 + 8 into x5):
 - EX: ALU adds readData1 + immediate to calculate the address. storeData is unused.
 - MEM: Reads DMEM at address aluResult and sends the memory data to WB, alongside the registered rd and control signals.
 - WB: Selects memory data because memRead = Y, then sends it back to ID’s register file to be written into rd (x5).
+
+
+Milestone 2:
+- LUI (lui x5, 0x12345): Supplied 20 bits in register RD, with 0 filling the lower 12 bits. In decoder chooses regwrite Y, ALUop is COPY_B, imm type is UTYPE. EX extracts immediate as op2 and alu outputs it. Memread is false and regwrite is true so WB writes value to register destination in regfile.
+- AUIPC (auipc x5, 0x12345): Adds upper immediate to pc and saves the result in RD. Regwrite Y, op1select is pc, op2 is imm, UTYPE and ALUop is ADD. ID scala constructs the UTYPE imm. EX mux chooeses op1 to be pc and op2 to be imm. MEM carries it onward, WB selects the ALU result, and the register file writes into RD.
+- BEQ, BNE, BLT, BGE, BLTU, BGEU (Bxx x5, x6, target): Decoder selects branch Y, corresponding branchtype, btype immediate, and aluop add to add the target address.  Three boolean values test for equal, less or lessu. Branchcondition val becomes true if the relevant boolean is true for our branchtype. io output redirect becomes true if branch is Y and branch condition is true. EX outputs redirect true and target pc to if. 
+- JAL (jal x1, function): Jumps to function and saves current PC+4 to x1. Regwrite and jump is Y, rest is N. Operands are PC and imm (jtype). ALUop is add. Ex calculates target address from pc + offset. EXs redirect is true and target pc is sent to if. 
+- JALR (jalr x1, 8(x5)): Jumps to function and offset, saves current PC+4 to x1. Regwrite and jump is Y, rest is N. Operands are rs1, imm (Itype). ALUop is add. EX calculates target addrss from x5+8. EXs redirect is true and target pc is sent to if. 
