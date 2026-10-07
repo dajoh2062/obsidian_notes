@@ -1,8 +1,6 @@
 
 
 TODO:
-- intervju køå
-- oblig 4 parallel
 - oblig datakonstruksjon m3
 - slides parallelle
 - slides maskinnær
