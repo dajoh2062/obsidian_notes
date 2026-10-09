@@ -38,6 +38,8 @@ MPI_Sendrecv(
 
 ### Communication modes
 
+The sender decides how to transmit, and the recieving method stays the same.
+
 Standard mode:
 - MPI_Send
 - arguments are buffer-pointer, count, type, destination, tag and communicator.
@@ -51,7 +53,80 @@ Synchronized mode:
 - Easier to create deadlocks.
 
 Buffered mode:
-- MPI_Bsend
-- 
+- MPI_Bsend and MPI_Buffer_attach
+- Lets you allocate the buffer memory manually, so you can make it one long continuous memory range.
+```C
+int buffer_size = n*sizeof(msgsize) + MPI_BSEND_OVERHEAD;
+int *my_buffer = malloc ( buffer_size );
+MPI_Buffer_attach ( my_buffer, buffer_size );
+
+MPI_Buffer_detach ( &my_buffer, &buffer_size );
+
+```
 
 Ready mode:
+- MPI_Rsend
+- Use when 100% confident that the corresponding recv call has been made. 
+- If recv has not been made, it is an error, and the result is arbitrary.
+
+Non-blocking send:
+- MPI_Isend.
+- Returns immediatly.
+- Leaves program free to continue.
+- Send message later at MPIs convenience.
+- When you actually need to make sure that the transfer has completed, you can wait for the request to say that its finished.
+```C
+int MPI_Isend (
+	const void *buffer,
+	int count,
+	MPI_Datatype type,
+	int destination,
+	int tag,
+	MPI_Comm communicator,
+	MPI_Request *request 
+	// extra argument. Hands some memory to MPI, which writes there.
+);
+
+
+int MPI_Wait ( MPI_Request *req, MPI_Status *stat )
+// or
+int MPI_Wait ( MPI_Request *req, MPI_STATUS_IGNORE)
+
+// Sending multiple 
+MPI_Request my_reqs[42];
+for ( int m=0; m<42; m++ )
+	MPI_Isend (&msgs[m], 1, MPI_INT, dst, 0, MPI_COMM_WORLD, &my_reqs[m]);
+
+// waits for all of them to complete
+MPI_Waitall ( 42, my_reqs, MPI_STATUSES_IGNORE );
+
+```
+
+
+Communicate vs. compute:
+- Communcation calls can be very expensive compared to local operations.
+- Rule of thumb: "send early, recieve late".
+- Compute result while messages are underway.
+- Overlapping communication and computation is a popular application of MPI_Isend.
+
+
+Non blocking version for other modes:
+- MPI_Isend
+- MPI_Issend
+- MPI_Ibsend
+- MPI_Irsend
+- MPI_Irec
+
+Persistent Communication in MPI:
+- Purpose: Used when processes repeatedly send or receive messages using the same communication pattern.
+- Initialize once: MPI prepares the communication once, reducing setup overhead in loops.
+- MPI_Send_init(): Creates a persistent send request without actually sending data.
+- MPI_Recv_init(): Creates a persistent receive request without actually receiving data.
+- MPI_Start(): Starts a previously initialized communication request.
+- MPI_Startall(): Starts multiple persistent requests at once.
+- MPI_Wait(): Waits until the communication is completed before reusing the request.
+- MPI_Request_free(): Frees the persistent request when no longer needed.
+- Reusability: Data values can change between iterations, but communication parameters (destination, tag, count, etc.) remain fixed.
+- Non-blocking: MPI_Start() returns without waiting for communication to complete.
+- Benefits: Reduces setup overhead, simplifies code, and can improve performance.
+- Key sequence: Initialize once → Start → Wait → Repeat Start/Wait → Free.

@@ -4,21 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "9656b7784a2384a1",
+        "id": "2c75a0f87650c49f",
         "type": "tabs",
         "children": [
           {
-            "id": "efef0f6488150b92",
+            "id": "eb8307ef9b4ebf9d",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Low_level_Notes/7 - Energy efficient computing.md",
+                "file": "Parallel_Notes/14 - (MPI) Derived datatypes.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "7 - Energy efficient computing"
+              "title": "14 - (MPI) Derived datatypes"
             }
           }
         ]
@@ -83,7 +83,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 200
+    "width": 300
   },
   "right": {
     "id": "99259698128e5234",
@@ -188,44 +188,45 @@
       "bases:Create new base": false
     }
   },
-  "active": "efef0f6488150b92",
+  "active": "eb8307ef9b4ebf9d",
   "lastOpenFiles": [
-    "Low_level_Notes/6 - Small Microcontrollersand Energy Efficiency.md",
-    "Low_level_Notes/7 - Energy efficient computing.md",
-    "{DCD865F8-58F5-4C71-9D1D-7CA98CE01817}.png",
-    "{0963E8DF-B706-44F8-BAAA-10BD3A25CD63}.png",
-    "{A06433C7-1051-4803-9B29-FDFF8802BA57}.png",
-    "{33106493-A900-4391-AFEE-3910906F591B}.png",
-    "{1E11D7ED-C8D4-4AE9-86D5-EBC24D1C8028}.png",
-    "{0D29C0ED-A343-4395-9185-4A6B8FCA786A}.png",
-    "{C84490B7-592A-4510-8F3C-EE2219002F91}.png",
-    "{C8927A9F-C870-4D2A-ADBE-13D6A10A869D}.png",
-    "{488038AF-1DD1-4838-A58F-CF8699BBEFA4}.png",
-    "{BB2B5FEA-D1C8-48A8-8773-C83C619537F1}.png",
-    "Main.md",
-    "Low_level_Notes/5 - More C programming, caches, virtual memory.md",
-    "Java - Notes.md",
-    "Java CS.md",
-    "Parallel_Notes/12 - Point-to-point communication modes.md",
+    "Images/Screenshot 2026-10-09 at 18.06.51.png",
+    "Images/Screenshot 2026-10-09 at 17.45.49.png",
+    "Images/Screenshot 2026-10-09 at 17.07.35.png",
+    "Images/Screenshot 2026-10-09 at 17.05.16.png",
+    "Images/Screenshot 2026-10-09 at 17.04.52.png",
+    "Images/Screenshot 2026-10-09 at 16.44.37.png",
+    "Images/Screenshot 2026-10-09 at 16.34.28.png",
+    "Images/Screenshot 2026-10-09 at 15.43.18.png",
     "Parallel_Notes/TDT4200 Notes.md",
-    "Parallel_Notes/8 - Concepts of MPI.md",
+    "Low_level_Notes/TDT4258 notes.md",
+    "Low_level_Notes/ARMv7 Assembly Cheatsheet.md",
+    "Main.md",
+    "Parallel_Notes/14 - (MPI) Derived datatypes.md",
+    "Screenshot 2026-10-09 at 18.06.51.png",
+    "Screenshot 2026-10-09 at 17.45.49.png",
+    "Parallel_Notes/13 - Timing, scatter and gather.md",
+    "Parallel_Notes/12 - Point-to-point communication modes.md",
     "Parallel_Notes/9 - Six function MPI with point-to-point communication.md",
-    "Parallel_Notes/10 - Advection Equation with MPI.md",
+    "Parallel_Notes/8 - Concepts of MPI.md",
+    "Screenshot 2026-10-09 at 17.07.35.png",
+    "Parallel_Notes/4 - Instruction Level Parallelism.md",
+    "Parallel_Notes/5 - Flynn’s taxonomy, shared & distributed memory.md",
+    "Parallel_Notes/6 - Speedup, efficiency and scalability.md",
+    "Parallel_Notes/7 - The advection equation.md",
+    "Parallel_Notes/1 - Introduction.md",
+    "Parallel_Notes/exam.c",
+    "Parallel_Notes/Untitled 1.md",
+    "Low_level_Notes/7 - Energy efficient computing.md",
+    "Java - Notes.md",
+    "Low_level_Notes/6 - Small Microcontrollersand Energy Efficiency.md",
+    "Java CS.md",
+    "Low_level_Notes/5 - More C programming, caches, virtual memory.md",
+    "Computer_Design_Notes/RISC-V Project notes.md",
     "Parallel_Notes/11 - Collective operations.md",
-    "Parallel_Notes/Untitled.md",
-    "Programming_Languages_Notes/2 - Syntax; The Form of Languages.md",
     "Computer_Design_Notes/6 - The memory system.md",
     "Computer_Design_Notes/5 - Branch prediction.md",
-    "Computer_Design_Notes/1 - Trends and performance.md",
-    "Parallel_Notes/7 - The advection equation.md",
-    "Parallel_Notes/6 - Speedup, efficiency and scalability.md",
-    "Parallel_Notes/5 - Flynn’s taxonomy, shared & distributed memory.md",
-    "Parallel_Notes/4 - Instruction Level Parallelism.md",
-    "Computer_Design_Notes/4 - Out-of-order execution.md",
-    "Parallel_Notes/2 - The von Neumann computer.md",
-    "Parallel_Notes/1 - Introduction.md",
-    "Low_level_Notes/1 - Introduction to Embedded systems and ARM assembly language.md",
-    "Computer_Design_Notes/2 - Instruction Set Architecture (ISA).md",
+    "Computer_Design_Notes/Scala and Chisel Notes.md",
     "General",
     "Images",
     "obsidian_notes/Programming_Languages_Notes",
