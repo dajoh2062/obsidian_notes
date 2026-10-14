@@ -137,6 +137,8 @@ CPU:
 - Memory access: Off chip access is often slow. solution: cache.
 
 
+
+
 ### Single-Core Processor Performance Growth
 
 ![[{217F26E5-1DED-46CD-A327-A9235A372CC8}.png]]
