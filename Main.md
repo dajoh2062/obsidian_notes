@@ -1,13 +1,10 @@
 
 
 TODO:
-- Oblig progspråk scala leveres fredag 16. okt.
 - oblig datakonstruksjon m3
 - slides parallelle
 - slides maskinnær
-- datakonstruksjons oppgaver og slides
 - slides oz
-- bedøk
 - søke sommerjobber
 - Pensum
 

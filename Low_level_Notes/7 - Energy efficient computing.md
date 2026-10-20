@@ -120,6 +120,8 @@ Dark silicon (not sustainable):
 
 Parallelisation, vectorization and specialization:
 - Requires more complex programming but can improve energy efficiency.
+
+![[{E4915225-947B-4350-8D3B-BE20479A0CFD}.png]]
 ### Power, energy, and gating
 
 
