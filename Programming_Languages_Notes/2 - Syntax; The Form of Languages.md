@@ -95,10 +95,13 @@ Semantics:
 - Definition of the meaning of programs in a language. Specifies what the computer has to do during an execution of a program.
 
 Formal language:
-![[{86B53448-9C23-4279-8CFC-FB74EA7B2BF9}.png]]
-
-![[{890FB7F2-E0E3-461B-9934-FEF087693AC6}.png]]
+![[{EF45916B-2BC3-4A29-B97E-7D992D7E4730}.png]]![[{9CE4D428-9C6B-4F8C-B908-475ACD7CD196}.png]]
 
 
-
-
+Formal grammars:
+- Used to specify syntax formally.
+- How to generate and construct a syntactically valid string.
+- Following examples produces all even-length palindromes over \(\{a,b\}\), including the empty string:
+![[{4957CD54-968C-47E5-A85A-38F20433C5BE}.png]]![[{AF0D510D-8646-407B-9D94-062D37678DCF}.png]]Backus-Naur Form:
+- Special notation (BNF) which grammars are usually written in.
+-
