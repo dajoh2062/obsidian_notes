@@ -4,21 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "9656b7784a2384a1",
+        "id": "2c75a0f87650c49f",
         "type": "tabs",
         "children": [
           {
-            "id": "efef0f6488150b92",
+            "id": "eb8307ef9b4ebf9d",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Programming_Languages_Notes/2 - Syntax; The Form of Languages.md",
+                "file": "Low_level_Notes/7 - Energy efficient computing.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "2 - Syntax; The Form of Languages"
+              "title": "7 - Energy efficient computing"
             }
           }
         ]
@@ -83,8 +83,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 200,
-    "collapsed": true
+    "width": 300
   },
   "right": {
     "id": "99259698128e5234",
@@ -189,45 +188,45 @@
       "bases:Create new base": false
     }
   },
-  "active": "efef0f6488150b92",
+  "active": "eb8307ef9b4ebf9d",
   "lastOpenFiles": [
-    "{AF0D510D-8646-407B-9D94-062D37678DCF}.png",
-    "{4957CD54-968C-47E5-A85A-38F20433C5BE}.png",
-    "{9CE4D428-9C6B-4F8C-B908-475ACD7CD196}.png",
-    "{1AC4F77E-1E71-448F-A8E6-00DED37594A5}.png",
-    "{EF45916B-2BC3-4A29-B97E-7D992D7E4730}.png",
-    "Programming_Languages_Notes/3 - Grammars, Derivations, Parse Trees, Scanning-Introduction to Oz.md",
-    "Low_level_Notes/7 - Energy efficient computing.md",
-    "Computer_Design_Notes/8 - Microarchitectural Design Options.md",
-    "{032D3348-08AC-4CFE-BCB3-21E623CAE8DB}.png",
-    "{20219E2B-717B-46B3-9676-50E89B2E9E4E}.png",
-    "{97A1AF64-4C33-4ADD-8175-DCBB92C7D792}.png",
-    "{D9C36904-94BF-4A7E-9463-B2CC9B988C3E}.png",
-    "Programming_Languages_Notes/2 - Syntax; The Form of Languages.md",
-    "{B13DA078-B52F-4319-A3AB-52A5644B2CC9}.png",
-    "Computer_Design_Notes/7 - The interval model.md",
-    "Main.md",
-    "Parallel_Notes/20 - (OpenMP) Introduction.md",
-    "Parallel_Notes/18 - (Pthreads) Creating and removing pthreads.md",
-    "Parallel_Notes/19 - (Pthreads) Operations and sychronization.md",
-    "Parallel_Notes/17 - (Pthreads) Posix threads introduction.md",
+    "Screenshot 2026-10-26 at 18.34.29.png",
+    "Screenshot 2026-10-26 at 18.31.02.png",
+    "Screenshot 2026-10-26 at 17.09.44.png",
+    "Screenshot 2026-10-26 at 17.00.06.png",
+    "Screenshot 2026-10-26 at 16.58.47.png",
+    "Screenshot 2026-10-26 at 15.44.32.png",
+    "Screenshot 2026-10-26 at 15.44.03.png",
+    "Screenshot 2026-10-26 at 15.05.40.png",
+    "Screenshot 2026-10-26 at 14.46.18.png",
+    "Screenshot 2026-10-26 at 14.43.00.png",
+    "{FFDFC701-4A0D-4D85-91CD-0A8640BEB34E}.png",
     "Parallel_Notes/21 - Atomicity in OpenMP.md",
-    "General/Cheatsheets.md",
-    "{2A0553B3-52C2-464E-A88A-2B48C93343B5}.png",
-    "Computer_Design_Notes/RISC-V Project notes.md",
-    "Computer_Design_Notes/6 - The memory system.md",
-    "Parallel_Notes/exam.c",
-    "Parallel_Notes/9 - (MPI) Six function MPI with point-to-point communication.md",
-    "Parallel_Notes/8 - (MPI) Concepts of MPI.md",
-    "Parallel_Notes/16 - (MPI) Cartesian communicators and parallel IO.md",
+    "Parallel_Notes/20 - (OpenMP) Introduction.md",
+    "Parallel_Notes/19 - (Pthreads) Operations and sychronization.md",
+    "Computer_Design_Notes/8 - Microarchitectural Design Options.md",
+    "Computer_Design_Notes/7 - The interval model.md",
+    "Low_level_Notes/6 - Small Microcontrollersand Energy Efficiency.md",
+    "Low_level_Notes/7 - Energy efficient computing.md",
+    "Low_level_Notes/ARMv7 Assembly Cheatsheet.md",
+    "Parallel_Notes/18 - (Pthreads) Creating and removing pthreads.md",
+    "Parallel_Notes/17 - (Pthreads) Posix threads introduction.md",
     "Parallel_Notes/15 - (MPI) Communicators.md",
+    "Parallel_Notes/16 - (MPI) Cartesian communicators and parallel IO.md",
+    "Parallel_Notes/TDT4200 Notes.md",
     "Parallel_Notes/14 - (MPI) Derived datatypes.md",
     "Parallel_Notes/13 - (MPI) Timing, scatter and gather.md",
+    "Parallel_Notes/5 - Flynn’s taxonomy, shared & distributed memory.md",
+    "Parallel_Notes/4 - Instruction Level Parallelism.md",
+    "Parallel_Notes/6 - Speedup, efficiency and scalability.md",
+    "Parallel_Notes/7 - The advection equation.md",
+    "Parallel_Notes/8 - (MPI) Concepts of MPI.md",
     "Parallel_Notes/12 - (MPI) Point-to-point communication modes.md",
     "Parallel_Notes/11 - (MPI) Collective operations.md",
+    "Parallel_Notes/9 - (MPI) Six function MPI with point-to-point communication.md",
     "Parallel_Notes/10 - (MPI) Advection Equation.md",
-    "Low_level_Notes/6 - Small Microcontrollersand Energy Efficiency.md",
-    "Low_level_Notes/5 - More C programming, caches, virtual memory.md",
+    "Computer_Design_Notes/1 - Trends and performance.md",
+    "Parallel_Notes/exam.c",
     "General",
     "Images",
     "obsidian_notes/Programming_Languages_Notes",
