@@ -104,4 +104,3 @@ Formal grammars:
 - Following examples produces all even-length palindromes over \(\{a,b\}\), including the empty string:
 ![[{4957CD54-968C-47E5-A85A-38F20433C5BE}.png]]![[{AF0D510D-8646-407B-9D94-062D37678DCF}.png]]Backus-Naur Form:
 - Special notation (BNF) which grammars are usually written in.
--
