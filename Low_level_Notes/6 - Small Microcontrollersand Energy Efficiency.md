@@ -62,12 +62,12 @@ Battery capacity:
 - Pro: Low latency. 
 - Con: High power consumption.
 - Use case: Short, immediate waits.
-![[{C8927A9F-C870-4D2A-ADBE-13D6A10A869D}.png|347]]
+![[{C8927A9F-C870-4D2A-ADBE-13D6A10A869D}.png|392]]
 - Polling: Periodically checks a condition at certain intervals, allowing CPU to multitask or enter low power mode.
 - Pro: Moderate power consumption.
 - Con: Higher latency.
 - Use cases: Less critical, periodic checks.
-![[{C84490B7-592A-4510-8F3C-EE2219002F91}.png|461]]
+![[{C84490B7-592A-4510-8F3C-EE2219002F91}.png|557]]
 - Interrupt-driven approach: Uses hardware interupt to notify cpu of an event, freeing the CPU to do other tasks or low power mode.
 - Pros: Very low latency, low power consumption.
 - Use cases: Real-time and power sensitive.

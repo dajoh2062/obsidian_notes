@@ -491,13 +491,148 @@ Fundamental computer performance concepts:
 # 4 - Introduction to C programming
 
 
+C facts:
+- Both highlevel and lowlevel language.
+- Fast and unsafe: Run-time errors not caught before runtime. 
+- Procedural / imperative: Operations and data for operations.
+
+C datatypes:
+- Char: 1 byte.
+- Short: 2 bytes.
+- Int: 2, 4 or 8 byte (depends on machine word size, usually 4 byte).
+- Long: 4 or 8 byte.
+- float: 4 byte.
+- Double: 8 byte.
+- Boolean (not primitive): 1 byte.
+- Pointers: 4 or 8 bytes.
+- Usually also offer signed and unsigned.
+
+Memory areas:
+- Heap: Dynamically allocated memory. Managed by programmer.
+- Stack: Function/method local variables. Managed by compiler.
+- Static: For data living the program lifetime, such as static variables or variables made outside a function.
+
+C cheatsheet:
+```C
+
+int main(){
+
+// Other
+define MAX(X,Y) (X>Y ? X : Y) // careful with macros!
+
+// Types
+const int x = 4   // will be replaced in preprocessor
+volatile int y = 4  // not optimize anything
+
+
+// Pointers
+int value = 32; 
+int *p = &value;   // save address of value in p
+*p = 64            // value now contains 64
+
+
+// pointers to array
+int *p = arr + n;  // point to n element in array
+int *p = &arr[n];  // same
+int value = *(arr + n);
+*p++ // use value pointet to by p then increment
+*++p // increment then point
+*(p)++ increment value pointed to by p
+
+
+// Arrays
+int m[] = {5, 8, 10};  // 3 integers
+int n[2][10];         // 2 rows, 10 columns
+point p[4];          // array of 4 points
+
+
+// Structs
+struct Point {
+    int x, y;
+};
+
+struct Point p = {2, 3};
+p.x = 5;
+printf("(%d, %d)\n", p.x, p.y); // (5, 3)
+
+// struct with typedef
+typedef struct {
+    int x, y;
+} Point;
+
+Point p = {2, 3};
+p.x = 5;
+printf("(%d, %d)\n", p.x, p.y); // (5, 3)
+}
+
+
+// generic swap function
+void swap (void *a, void *b, int size){
+	char buffer[size];
+	memcpy(buffer, a, size);
+	memcpy(a , b, size);
+	memcpy(b, buffer, size);
+}
+
+int x = 10;
+int y = 20;
+swap(&x, &y, sizeof(int));
+
+
+// Dynamically allocated memory
+int *p;
+if((p = malloc(n*sizeof(int))) == NULL){
+	return 1;	
+}
+free(p);
 
 
 
 
+```
 
 
+Twos compliment:
+- Flip all bits.
+- Add 1.
+- Sign extend if converting from short to int.
 
+
+Endianess:
+- Big endianness: Most significant byte first.
+- Little endianness: Least significant byte first.
+- Little endianness is most common.
+
+
+Cache:
+- Block/ line: Unit of data stored in cache. Typically 32-128 bytes.
+- Hit: Data found in cache level.
+- Miss: Data not found in cache, must search and copied from higher level of hierarchy.
+- Accessed either direct mapped, fully associative, or n-way set associative.
+
+
+Direct-mapped:
+- tag | index | offset
+- The index selects one cache location, which holds one line.
+- Compare the address’s tag with that line’s stored tag to check for a hit.
+- The byte offset selects the required byte within the line.
+- Problem: Several addresses might repeatedly compete for a few/ the same cache location
+
+N-way set-associative:
+- tag | index | offset
+- The cache is divided into sets, each holding N lines, called ways.
+- The index selects one set.
+- Compare the tag against all N tags in that set. A match in any way is a hit.
+- The byte offset selects the required byte within the matching line.
+- On a miss, if the set is full, a replacement policy chooses which of its N lines to replace.
+
+Fully associative:
+- tag | offset
+- The entire cache is one set, so there are no index bits.
+- A memory block can go into any cache line.
+- Compare the tag against every line’s tag to find a match.
+- The byte offset selects the required byte within the matching line.
+- Problems: Slower to search for tag.
 
 
 
@@ -513,3 +648,471 @@ Fundamental computer performance concepts:
 
 
 
+Cache replacement:
+- Random.
+- LRU (least recently used): Evict cache block that hasnt been accessed longest. Complex implementation.
+- FIFO (first in first out): Same order as fill order.
+
+
+Writing modified data:
+- Write-back: When block is evicted, need to keep track of modified blocks ("D" - dirty 1/0). Saves resources.
+- Write-through: When writing to cache we also write to memory. Simpler implementation and more coherence, but slower and resource intensive.
+
+Cache performance:
+- AMAT = (hit rate \* hit-time + missrate \* miss-latency)
+- In cycles.
+
+![[{B074A89F-C379-4805-88BD-EA168DBD548A}.png|579]]
+
+
+
+
+
+### Virtual memory
+
+Motivation:
+- Capacity: Allowing physical memory to be smaller than the 32 bit address space. Also allow multiple programs to share limited physical memory.
+- Safety: Prevent user programs to access memory used by OS. And to control access by one user program to the memory of other user programs.
+
+Virtual memory:
+- Make each program think it owns the entire memory.
+- Virtual addresses: Addresses visible to the programmer.
+- Physical addresses: Actual memory addresses, used to access cache/memory. 
+- Address translation: Virtual address are translated on the fly to physical addresses (jointly by hardware and OS).
+- Parts not recently used stored on disc.
+
+
+Address translation:
+- Paging: Using pages (fixed size) as translation units.
+- Segmentation: Translation units are variable size memory regions.
+
+Paging:
+- Corresponds to a cache line or block of virtual memory.
+- "Page"/"virtual page" for virtual memory, and "page frame"/"physical page" for physical.
+- 4-8 kb (4096-8192 bytes). Can be MB or GB in servers.
+- Translation: Per program page tables. 
+- Different programs can use the sam virtual address.
+
+![[{7E7C6161-AB71-4034-A03B-E037DC32CA6C}.png]]![[{46DEBEE6-C298-4279-8D9E-6A5CBD3313ED}.png]]![[{0E0CF499-571E-443E-B192-FE2ED426F734}.png]]
+
+Translation Lookaside Buffer (TLB):
+- TLB is a cache (typically fully assosiative) for page table.
+- Close to CPU and fast.
+- TLB miss: Access page table and save translation in TLB.
+
+![[{48B0D3B7-8F18-4A89-BF17-1B9289FA9CDD}.png]]
+
+
+# 6 - Small microcontrollers and Energy efficiency | Microchip
+
+
+Microchip:
+- Microchip Technology is an American company that designs and manufactures semiconductors.
+-  Its products include microcontrollers (small computers that control functions inside devices), chips for power management and connectivity, memory, and security.
+
+### Basic electronics
+
+- Voltage  = Resistance \* current.
+- Power = Voltage \* current
+- Power Consumption \[W]  = \[J] / \[S]
+- Watt Hours = \[W] \* \[Hr]
+- Ampere hours = \[A]\*\[Hr]
+
+![[{0307895D-010F-4604-8E4B-94755187F617}.png|700]]
+
+
+### Microcontroller architecture
+
+![[{EFD2CBAD-5AB2-4EF5-8AA3-379BFFED9A3D}.png]]
+AVR Architecture:
+
+![[{6E85CB18-E3F9-4FF9-836E-0212485D2788}.png]]
+
+PIC Architecture:
+![[{EF5B55B4-8530-46F5-824D-B5D4AAE83DF7}.png]]
+The main differences are:
+- CPU design: AVR and PIC use different basic instructions and ways of doing calculations.
+- Registers—tiny storage spots inside the CPU: AVR usually has 32 working registers; common 8-bit PICs do many calculations through one main working register, called W.
+- Programming: The program must be built for the chosen chip. An AVR program cannot simply be loaded onto a PIC.
+- Features: Memory, speed, pins, and built-in tools depend on the specific model, not just whether it’s AVR or PIC.
+
+Microcontroller typical applications:
+- Low power applications: Battery powered devices, IoT applications.
+- Distributed logic and coexistence with larger processors: real-time control tasks, reading sensors, controlling simple user interfaces.
+
+Microcontrollers concrete examples:
+- Smartwatch, kitchen applicances, digital gadgets, vechicles.
+
+
+### Low power:
+
+![[{008E7344-8E4A-4453-89E3-CA55D502437C}.png]]
+![[{16D197BC-4C47-46EE-B879-BE4FA1893B45}.png]]
+
+Battery capacity:
+- Battery time \[Hrs]  = Battery capacity \[mAh] / Current consumption \[A]
+
+
+### Low power techniques
+
+1 - Operating modes (AVR example):
+- Active mode: All clocks active, CPU is running, Power consumption is proportional to the frequency of the system clock.
+- Idle mode: CPU stops executing code, no peripherals are disabled, all interrupt sources can wake the device.
+- Standby mode: Peripherals can be configured to be enabled or not, power consumption depends on what functionalities are enabled.
+- Power-down: Only few peripherals are active, fewer wake up sources.
+- Total power consumed = Active mode power + standby/sleep mode power +wake up power.
+
+![[{488038AF-1DD1-4838-A58F-CF8699BBEFA4}.png|479]]
+![[{BB2B5FEA-D1C8-48A8-8773-C83C619537F1}.png]]
+2 - Busy-wait vs. Polling:
+- Busy- wait: Checking the condition continously, keeping the CPU fully enganged.
+- Pro: Low latency. 
+- Con: High power consumption.
+- Use case: Short, immediate waits.
+![[{C8927A9F-C870-4D2A-ADBE-13D6A10A869D}.png|392]]
+- Polling: Periodically checks a condition at certain intervals, allowing CPU to multitask or enter low power mode.
+- Pro: Moderate power consumption.
+- Con: Higher latency.
+- Use cases: Less critical, periodic checks.
+![[{C84490B7-592A-4510-8F3C-EE2219002F91}.png|557]]
+- Interrupt-driven approach: Uses hardware interupt to notify cpu of an event, freeing the CPU to do other tasks or low power mode.
+- Pros: Very low latency, low power consumption.
+- Use cases: Real-time and power sensitive.
+![[{0D29C0ED-A343-4395-9185-4A6B8FCA786A}.png|608]]
+3 - Core independent Peripherals (CIPs):
+- Peripherals capable of handling tasks without intervention from CPU. 
+- Frees CPU time. 
+- Provide short and predictable response times between peripherals. Reduces complexity and execution time
+- Examples: Event system, Configurable custom logic, timers, counters, Analog to digital coverter.
+
+4 - Event system:
+- Peripheral to peripheral signaling.
+- Enabled through event channels, not using the CPU.
+- Reduces complexity, size and execution time of the software.
+![[{1E11D7ED-C8D4-4AE9-86D5-EBC24D1C8028}.png]]
+
+5 - Choice of Oscillator:
+- Choice of oscillator and clock speed impacts power consumption.
+- Lower frequency = lower power. usually.
+- Tradeoff between accuracy and power consumption.
+- Sometimes a higher frequency is advantageous, returning to lower power modes quicker.
+
+6 - Unused Pins:
+- Unused pins are chip connections you aren’t using.
+- If left floating, their voltage is not held at a fixed level.
+- Electrical noise can make them read randomly as 0 or 1, wasting power.
+- An internal pull-up resistor holds the pin at a stable high voltage.
+- Disabling the input buffer turns off the circuit that reads the pin, saving more power.
+- The code applies both settings to all eight pin positions in a port—use this only if those pins are unused.
+![[{33106493-A900-4391-AFEE-3910906F591B}.png]]
+
+
+### Programming microcontrollers:
+
+
+Languages:
+- C, Embedded C, C++, python, java and more.
+
+IDE:
+- Arduino IDE, MPLAB X (VS extension).
+- 1: Create project with main.c file.
+- 2: Compile and build project.
+- 3: Upload code (hex file) to MCU.
+
+Machine language:
+- Binary 0 and 1s. 
+
+![[{A06433C7-1051-4803-9B29-FDFF8802BA57}.png]]![[{0963E8DF-B706-44F8-BAAA-10BD3A25CD63}.png]]
+
+Bitmasks and bitwise operations:
+- AND: &=
+- OR: |=
+- XOR: ^=
+- NOT: ~(bits)
+
+
+Analog comparator (AC):
+- Output 1 when difference in volage is positive and 0 otherwise. 
+
+![[{DCD865F8-58F5-4C71-9D1D-7CA98CE01817}.png|503]]
+
+
+# 7 - Energy efficient computing
+
+Energy efficient computing, motivation, theory, technology trends and accellerators.
+
+
+Power vs energy:
+- Power = Energy/time
+- \[Watt] = \[Joule]/\[Second]
+- Servers and desktop computers have the thermal envelope as their limit as overheating is the main concern (power), while phones and portable devices have the battery size as the limiting factor (total energy).
+
+
+Dynamic power:
+- Power consumed when a circuit switches between 0 and 1, usually when doing a useful activity.![[{F7AA6500-C880-4F80-9E48-F5839C722B23}.png|295]]
+
+Static power:
+- Power consumed by circuit while doing nothing. Transistors leak even in offs state.![[{BF140430-26B2-4E51-87E1-71E75BF948B6}.png|352]]
+
+Reducing energy consumption:
+- The smaller the transistors, leakage powers portion increases.
+- Hardware techniques to decrease: Clock gating, power gating.
+- Software techniques: Sleep modes, dynamic voltage and frequency scaling (DVFS).
+
+
+Clock gating:
+- Turning of clock signal to circuit that is currently unused.
+- Keeps store value as long as EN = 0, which sets clock at 0. Makes frequency (f) 0.
+![[{DC72D1F9-D119-4EEB-8324-A0E74F480F42}.png]]
+
+Power gating:
+- Turns off power to the circuits not in use.
+- An ordinary register loses its stored value when its supply is disconnected. After power returns, its value must be initialized or restored.
+- Leakage is reduced way more than clock gating.
+- Energy Overhead: require some energy to power down and power up a unit, so the energy saved should out-weigh.
+- Performance overhead: Extra time required in relation to activating the unit.
+
+OS power managment:
+- Hardware provides multiple power modes, which Os can use to reduce consumption.
+- Sleep modes provide maximum power saving. Similar to power gating but with software. Overhead on entering and exiting. Multiple levels to adapt the tradeoff.
+
+
+Dynamic voltage and frequency scaling (DVFS):
+- Lets OS choose between multiple voltages and clock frequencies.
+- Reducing frequency reduces dynamic power consumption, but energy remains the same.
+- Reducing voltage reduces both dymaic and static power consumption.
+- OS needs to adjust voltage and frequecy such that the CPU runs just fast enough for task.
+
+
+
+### Bare metal, runtime systems, and operating systems
+
+Bare metal programming:
+- Software runs directly on hardware. No system calls, libraries or drivers.
+- Start from instruction at address 0.
+- Reset handler must set up the stack pointer and call main.
+- Minimal portability, no hardware abstraction and harder debugging.
+- Max performance and control. Predictable timing, ideal for Realtime systems.
+
+Runtime environment (RTE) and runtime system (RTS):
+- Memory management (stack, heap/allocated memory, garbage collection).
+- Aspects of programming languages that needs to be handled during run time, such as communcation between processes/threads, signals, dynamic loading and more.
+- Distinction between runtim system and operating system is not clear.
+- Examples:
+	- FreeRTOS (from 1-2 kB RAM, from 5 – 10 kB ROM (e.g. FLASH))
+	- Zephyr RTOS (from, 6-8 kB RAM, from 3-8 kB ROM)
+
+Operating system (Os) and Real time Operating system (RTOS):
+- File system, process management, security, networking and more.
+
+![[{1FC1BD7E-8DEB-4E0A-9A13-6B107FB8BD99}.png]]
+![[{EE06A4DE-5D99-4BD3-89DD-BB87925E91AA}.png]]![[{F69E6FC6-A8CC-45B4-A7FF-1269B9A543D0}.png]]
+![[{4CC57407-AD57-4F28-AC38-F9396A9A23A1}.png]]
+### Measuring performance
+
+Performance monitoring unit (PMU):
+- Counts hardware events that help explain execution time.
+- Such as clock cycles, instructions completed, cache references, cache miss, branch mispredicts.
+- Derived metrics: , instructions per completed clock cycle, cache miss rate, branch misses per instruction executed.
+
+![[{FADC75DB-6457-4C50-83EF-66C89D2D8FD1}.png]]
+For reliable measurements:
+- Repeat experiments to reduce uncertainty.
+- Distinguish cold-cache execution from execution after warm-up.
+- Control interference from other tasks.
+- Consider strided access: stepping through memory can use cache lines less efficiently than accessing adjacent elements.
+
+Why use PMU:
+- Big-O describes growth with input size; it does not capture instruction counts, memory accesses, or pipeline behavior. The counters show differences that execution time alone cannot explain.
+
+
+### Sustainable computing
+![[{462FEA5E-78CE-44DC-B552-C9001B11D0E0}.png]]
+Sustainalbe computing:
+- Reducing the environmental impact of computing itself.
+
+Computing for sustainability:
+- Using computers to improve other systems, such as transport or energy supply.
+
+Operational footprint:
+- Impact from using equipment, including electricity and cooling.
+
+Embodied footprint:
+- Impact associated with manufacturing and other lifecycle stages beyond operation.
+- A computer’s environmental cost includes raw materials, production, transport, use, maintenance, and disposal.
+- Examples of reducing embodied impact include extending hardware lifetime, producing fewer chips, and designing smaller chips.
+
+Jevons paradox: 
+- Improving efficiency can make a resource cheaper to use, increasing demand enough that total resource consumption rises. Better efficiency per computation does not guarantee lower overall consumption.
+![[{16C343C3-08A3-42C0-BFCB-29FC8E741431}.png|593]]
+### Technology trends and the power wall
+
+Moore’s law (slowing/stopped?):
+ - Historical trend of increasing transistor counts per chip.
+
+Dennard scaling (has stopped):
+- Historical ability to shrink transistors while keeping power density roughly constant.
+- Under ideal Dennard scaling, halving transistor dimensions quarters their area and power. More transistors could therefore fit into the same area without increasing power density.
+- That scaling broke down because voltage and current could no longer decrease sufficiently while maintaining reliable operation. Leakage also became a larger problem.
+
+Power wall:
+- Power and cooling limits restrict further performance increases.
+
+Dark silicon (not sustainable):
+- Parts of a chip cannot operate simultaneously within its power or thermal budget.
+
+Parallelisation, vectorization and specialization:
+- Requires more complex programming but can improve energy efficiency.
+
+![[{E4915225-947B-4350-8D3B-BE20479A0CFD}.png]]
+### Power, energy, and gating
+
+Dynamic power:
+- P_dynamic =  a \* f \* C \*  V\^2
+- Where a is activity factor and C is how much capacity we have.
+- Energy used caused by transistor switching.
+
+Clock gating:
+- Turning off clock to circuits not in use, reducing P_Dynamic by reducing activity factor temporarly.
+
+Static power:
+- P_static = I_leakage \* V
+- \[W] = \[A]\*\[V] 
+- Increases with temperature, and with smaller transistors.
+- Leakage current, even when not used.
+
+Power Gating:
+- Turning of power supply to circuits not in use, mainly reducing P_static by decreasing voltage. 
+- More overhead than clock gating.
+
+![[Screenshot 2026-10-26 at 14.43.00.png]]
+![[Screenshot 2026-10-26 at 14.46.18.png]]
+
+
+### Thermal limits and measurement
+
+Dennard scaling slow down and end (estimated 2005-2010):
+- Transistor size decreased while power denisty was stable, allowing more transistors.
+- Stopped due to not possible to drop voltage and current levels in proportion.
+- Heating and static power leakage become a larger problem at smaller transistor sizes.
+- Makes parallelism and multi core more important, in processors and memory, due to single core performance tapering.
+
+Dark silicon problem:
+- Because of power and thermal limitations, parts of a chip must remain powered off.
+- This makes processors with smaller sized transistors, and same total size and power not gain the proportional performance.
+- Also for parallel computing: Even if manufacturers can fit more CPU cores onto a chip, the power budget may prevent all of them from running simultaneously.
+
+Thermal constraints:
+- When a processor consumes electrical power, most of that energy eventually becomes heat.
+- If the processor generates too much heat, it can overheat.
+- Usually the constraint for human touched devices.
+
+Power constraints:
+- A power budget is the maximum electrical power a device or system is allowed to consume.
+- A data center has limitations on how much electricity its infrastructure can deliver.
+![[Screenshot 2026-10-26 at 15.05.40.png]]
+
+Difference electrical enery and Power:
+- Electrical energy: Amount of energy transferred to other forms (heat) in an electrical circuit during some amount of time. Measured in Joules ( J = W \* S)
+- Power: Work done” (electrical energy transferred) per unit time. Measured in Watt (W = J / s). Also: P (watt) = U (Volt) \* I (Ampere).
+
+Example 1: Raspberry Pi4:
+- 3-6 watt.
+- Runs at 5.1 volts, current depends on peripherals.
+- With 6000 mAh (three AA batteries in series), it lasts only 3 h 20 min in idle.
+![[Screenshot 2026-10-26 at 15.44.03.png|462]]
+
+Example 2: AVR128DB48 Curiosity Nano:
+- 13μ Watt – 39m Watt.
+- Runs at 1.7-5.1 volts.
+- With a 240mAh battery it lasts 20 years in idle!
+![[Screenshot 2026-10-26 at 15.44.32.png|593]]
+
+Thermal design power (TDP):
+- Represents the average power the processor dissipates when operating at base frequency with all cores active under a high-complexity workload.
+
+Hyperthreading:
+- Allows one physical core to appear as two logical cores, to the OS, and therefore handle double the amount of threads. This makes it possible to better multiplexing multiple lightweight threads or processes.
+- Seperate registers for each hyperthreaded core is what gives the performance boost, in addition to OS waiting times.
+- HT is Intels marketing name for Simultaneous Multithreading (SMT).
+
+Turbo boost:
+- Dynamically increase clock to enhance performance when needed (within limits of TDP).
+- Dynamic overclocking.
+
+Cooling solutions:
+- Heat sink: component that absorbs heat from a CPU or other electronic component and transfers it to the surrounding air to prevent overheating.
+- Thermal interface materials (TIM): Thermal paste placed between the chip and the heat sink to improve thermal conductivity and ensure efficient heat transfer.
+- Active cooling with fan.
+- Water cooling.
+
+Relevance to low-level programming:
+- Reading temperature, fan speeds, controlling fan speeds.
+- Controlled temperature is necessary for precise energy measurements.
+- Temperature affects on-chip energy measurements.
+- Made possible by Intel RAPL (Running Average Power Limit)
+
+![[Screenshot 2026-10-26 at 16.58.47.png|651]]
+
+
+
+### The vertical approach and efficiency metrics
+![[Screenshot 2026-10-26 at 17.00.06.png]]
+Computer architecture:
+- the way a computer’s hardware components interact with each other and with the software.
+
+Vertical Approach to Energy Efficiency:
+- Main idea: Improve energy efficiency across all levels of a computer system, from software to hardware.
+- Applications: Optimize algorithms, data structures, programming languages and parallelization.
+- System software: Optimize operating systems, compilers, task scheduling, resource management and DVFS.
+- Computer architecture: Improve multicore systems, accelerators, caches, memory and communication.
+- Holistic approach: Consider how hardware and software interact rather than optimizing each layer independently.
+
+Energy Efficiency Metrics:
+- Energy: \(E=P\cdot t\), measured in Joules (J).
+- Optimization goals: Maximize performance, minimize energy consumption, or balance both.
+- Performance per Watt: FLOPS/Watt, used by Green500 to rank energy-efficient supercomputers.
+- Energy Delay Product (EDP): \(E\cdot t\), measured in Joule-seconds (Js). Lower is better.
+- Energy Delay Delay (EDD): \(E\cdot t^2\), measured in \(Js^2\). Penalizes slow execution more heavily.
+- Benchmarks: SPEC evaluates CPU performance; EEMBC focuses on embedded processors.
+![[Screenshot 2026-10-26 at 17.09.44.png|453]]
+
+### Parallelism and specialization
+
+
+Vectorization (SIMD):
+- Vectorization: Performs the same operation on multiple data elements simultaneously (SIMD = Single Instruction, Multiple Data).
+- History: Popular in Cray supercomputers (1976–1990), later returned in mainstream CPUs.
+- Intel SIMD: MMX (64-bit), SSE (128-bit), AVX (256-bit), AVX-512 (512-bit).
+- ARM NEON: SIMD extension used for audio, video, graphics and gaming.
+
+Energy-Efficient Computing:
+- Hardware techniques: Low-power design, DVFS, sleep modes, multicore and specialized hardware.
+- Software techniques: Efficient algorithms, data structures, compilers and operating systems.
+- End of Dennard scaling: Forced architects to exploit parallelism for better energy efficiency.
+- Architecture-level optimization: Offers greater potential power savings than low-level circuit optimizations.
+
+ Chip Multiprocessors (CMP):
+- CMP: Multiple processor cores on the same chip, potentially sharing cache.
+- Throughput: Multiple slower cores can achieve similar throughput to one fast core for parallel workloads.
+- Energy efficiency: Lower frequency allows lower voltage, significantly reducing dynamic power.
+- Example: Under ideal assumptions, 2 cores at half frequency and voltage consume only 25% of the original dynamic power.
+- Limitation: Parallelization introduces overhead, and not all applications can be parallelized efficiently.
+
+Multicore and MPSoC:
+- Multicore: Modern name for Chip Multiprocessors (CMP).
+- Cost: Several smaller processors can be cheaper than one very powerful processor.
+- Real-time systems: Dedicated cores make timing guarantees easier.
+- SoC (System on Chip): Integrates multiple components onto one chip, reducing cost.
+- MPSoC: SoC containing multiple processors; physically separated processors form a distributed system.
+![[Screenshot 2026-10-26 at 18.34.29.png]]
+Accelerators and Parallelism:
+- Accelerators: Specialized hardware for specific workloads, such as GPUs, DSPs and NPUs.
+- BLP: Bit-Level Parallelism.
+- ILP: Instruction-Level Parallelism.
+- TLP: Thread-Level Parallelism.
+- DLP: Data-Level Parallelism (e.g., SIMD).
+- ALP: Accelerator-Level Parallelism — multiple accelerators execute different workload components concurrently.
+- Example: Samsung Exynos 9810 combines CPU cores and an ARM Mali GPU in one SoC.
+
+![[Screenshot 2026-10-26 at 18.31.02.png]]
