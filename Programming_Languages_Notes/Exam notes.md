@@ -412,7 +412,206 @@ Expressions and Statements:
 ![[{19F6270A-1F8C-491B-B61A-DCB84B382666}.png]]
 
 Functions and procedures:
+- Functions are linguistic abstractions over procedures.
+- A function of n arguments is a procedure with n+1 arguments.
+- A procedure may have more than one result argument, may marked with ?.
 
+![[{4DACB322-78F2-4C96-9829-EA21AEDAFA8A}.png]]
+Data structures:
+- Atom: `Atom == atom()` is true. `{Label atom} == atom()` is also true. Atom is a record with no fields.
+- Tree: Can use a record with left/right fields and tree/leaf values.
+![[{024B9316-9CE8-41CA-A3D6-DC7CE27B3BBA}.png]]
+![[{7C8172D3-058F-4C2C-8F06-316D069B13FD}.png]]
+Records:
+- `X#Y#Z` is equal to ` "#"(1:X 2:Y 3:Z)` or simply `"#"(X Y Z)`
+- `case X#Y#Z of 1#2#3 then ... end`
+
+
+
+Lists:
+- Ordered collecion of items.
+- Lists are trees where the left child is always a leafnode.
+- `[one two three]` or `nil`
+- `[]` and `one | two` are not a list
+- `[one [two three] ]` nested two element list
+- Nested sequence of records.
+- `[one two]` is actually `'|' (one '|'(two nil))` and also `one|two|nil`
+
+Pattern matching lists:
+- Pattern `[First Second]` is equivalent to `'|'( 1:First 2:'|'(1: Second 2:nil))`
+- `one|_` is equivalent to `'|'(1:one 2:_)`
+- `Head|Tail` can be used to seperate first element from rest. Head/ tail are just identifires and can be called anything.
+- More complex patterns possible.
+
+![[{D74DDFEA-08B2-4094-876A-524BB6981B77}.png]]![[{6F4E6CF4-4FD1-4470-A7C3-3956F28D72C2}.png]]
+![[{9274A212-BFFE-4E46-BAA1-5E7AA9433DCE}.png]]
+
+Map:
+- `{Map [1 2 3] fun{$ X} X+1 end}` returns `[2 3 4]`
+- `{Map [fun {$ X} X end fun {$ X} X+1 end] fun {$ F} {F 1} end}` returns `[1 2]`
+  
 
 
 # 5 - The declarative sequential kernel language (DSKL) abstract Machine
+
+
+### The abstract kernel machine language
+
+The DSKL abstract machine is a simplified model of a computer that executes DSKL code step by step. It lets you track exactly what happens when a program runs.
+- Sequence of states of the VM. S is semantic stack and o is the single assignment store. 
+	- Step 1: M(t1) = (S1, o1)
+	- Step 2: M(t2) = (S2, o2)
+	- Step n: M(tn) = (Sn, on)
+![[{58105972-0DDF-4A75-A7E9-11F7DBEFE1A3}.png]]
+The semantic stack:
+- Semantic stack S is a list of semantic statements:  
+	- S = \[s1, s2, ...]
+- A semantic statement is a pair of a statement and and environment: 
+	- si = (\<statement>i, Ei)
+- Environment E is a set of indentifier - variable pairs. 
+	- E = {\<id>1 -> v1, \<id>2 -> v2, ...}
+
+
+Single Assignment store:
+- Contains declarative/dataflow variables.
+- Operations on these variables allowed:
+	- Creation of new unbound variable. 
+		- `... declare X in ...`
+	- Binding unbound -> unbound variable. 
+		- `... X = Y ...`
+	- Binding of unbound -> bound variable (value).
+		- `... X = tree(leaf leaf) ...`
+		- `... X = 3 ...`
+	- Unification of two bound variables (of two values).
+		- `... X = tree(_ leaf); Y = tree(leaf _); X = Y ...`
+	- Binding variable to partial value.
+		- `... X = record(Y) ...`
+	- Testing whether a variable is bound or not.
+		- `... {Browse {IsDet X}} ...` returns true/false if bound/unbound.
+	- Retrieving value of bound variable.
+		- `... {Browse X} ...`
+	- Testing equivalence between two variables.
+		- `... {Browse X == Y} ...` returns true if bound to same, false if never have the same value, and suspendend if partial value is equal but not complete.
+- Single assignment store is a set of bound/unbound variables.
+	- σ = {v1, v2 = 1, v3 = rec(feat : v1), . . .}
+- Variable names are not variables, as the same identifier in code can map to different variables in one program execution.
+
+
+
+Operations on Environments:
+- E = {\<id>1 -> v1, \<id>2 -> v2, ...}
+- Adjunction: Adds mappings via replacement or extension
+	- E' = E + {\<id>3 -> v3, ...}
+![[{35FDF931-B697-4090-8C38-D82AEB567070}.png]]
+- Restriction: Removes mappings creating a new reduced environment with only the requested indentifiers:
+	- E'  = E | {\<id>, ...}
+![[{21110301-A6A3-41DB-B51D-BF4CB3ACDFFF}.png]]
+- Lookup: Retrieves variable based on id and environment:
+	- v = E(\<id>)
+
+
+Computations:
+- A stepwise execution of the program, one step involves following operations on the abstract machine:
+	1. Pop the top semantic statement from stack.
+	2. Execute the enclosed statement using mappings in the environment, and bindings in the single assignment store.
+	3. Modify semantic stack and store as needed.
+	4. Repeat if semantic stack if not empty.
+- Empty stack means finished execution, execution step may push one or more semantic statements onto the stack.
+
+Setting up machine:
+![[{D6592850-4DEE-4AF6-9C40-C96C0B270DA2}.png]]
+
+Running the machine:
+![[{74CD765C-B825-4139-AB2A-DF82B9C144F0}.png]]
+
+
+### Execution of Statements on the Abstract Machine
+
+
+Skip statement:
+![[{8EC99B28-642C-41AB-8B7A-DABD9EA33DCD}.png]]
+![[{8AD7D436-7E6F-48EE-907B-92E5A400C176}.png]]
+Local statement:
+![[{230C2C09-CF45-4E82-9DED-65FBA2CD8250}.png]]
+The variable - variable binding statement:
+![[{82BC97C9-7592-4AFB-A926-446C05513AA0}.png]]
+Other situations:
+![[{334E28A2-1630-46FF-9A75-A2D4A32C062B}.png]]![[{6846BCDB-A4CA-41AF-B810-E0ED2717E202}.png]]
+Value Creation statement:
+![[{1E945856-98B0-46E2-8BDA-364F5D323AC2}.png]]
+
+Example program:
+![[{30EAAF13-31B8-436A-9CDA-4F9945374D49}.png]]![[{35C169F2-300A-46FB-8BE5-07133160FABD}.png]]
+
+Value creation procedure values:
+![[{2E90BF75-A766-4BDF-B8D3-9E1E57DE4DCF}.png]]
+![[{6C3A460D-2A9A-45B1-8D50-F59785C6A846} 1.png]]
+Free identifiers:
+![[{DA740B5B-D830-47D2-A3B1-6B7D112D33B1}.png]]
+
+
+
+Summary non-freezable statements:
+- Skip statement:
+![[{70D7A901-D875-41E5-A093-BAE85ADE0859}.png]]
+- Sequence statement:
+![[{2872BB33-F813-4C97-B99E-2A9F010C735E}.png]]
+- Local statement:
+![[{24826F84-E0E9-4845-A5D9-B7F812B63F0A}.png]]
+- Variable - variable statement:
+![[{6C6AA71E-2F41-42F2-AA46-10936DA271DD}.png]]
+- Value creation statement:
+![[{49A552E8-72DC-4B16-8569-485ADB4F2B13}.png]]
+
+### Execution of Freezable Statements on the Abstract Machine
+
+If statement:
+![[{E2492307-14E4-45E4-B4C0-4790211B7C8B}.png]]![[{640DEF38-3F86-4383-9272-5C06B167F1D0}.png]]
+
+Case statement:
+![[{8BBC47F8-2325-4058-984C-E1A6526765F2}.png]]
+![[{A5316133-606A-4846-85F1-C7738470B1B9}.png]]![[{1FC72204-88A9-4F7E-99AC-96A5DDB35DC6}.png]]
+
+The procedure application statement:
+- Formal parameter: Parameter, procedure definition.
+- Actual parameter: Arguments, procedure application.
+![[{5DCCF1B9-6684-4691-9699-6CC999313493}.png]]
+![[{AC325B32-879C-47C9-AE0B-8A97928C9366}.png]]
+![[{AB3104CE-1AF3-4EC8-971F-4CE9D475C5CA}.png]]
+
+### Implementing Oz in Oz (Oz^Oz)
+
+Interpreting a program:
+- Scanner: Scan the source code to produce a sequence of tokens.
+- Parser: Parse the list of tokens to produce a parse tree.
+- Interpreter: Process the parse tree, performing actions corresponding to its parts in the correct order.
+
+Implementation:
+- We will implement interpretation (from parse tree to execution).
+- And instead of building a scanner and parser, we will manually perform these stages.
+
+Interpreter: 
+- Takes parse tree as input, corresponding to a program.
+- Initializes the virtual machine.
+- Iteratively processes the input moving the machine from state to state.
+- Each state is completely specified by the content of its semantic stack and single assignment store. 
+![[{B1C17D32-261E-4DE6-B47F-0221794D229E}.png]]
+![[{3DB5D118-CC3C-4344-989E-7112C6DBD38A}.png]]
+Required specifications:
+- Encoding of parse trees.
+- Structure of semantic stack.
+- Structure of single assignment store. 
+
+Parse tree encoding:
+- Neste records in a tree.
+- Each parsed statement is a partial parse tree represented as a record.
+- Each parsed statement is of a certain type, and may have some content. 
+- Encode the type in the records label.
+- We can encode the content in the record’s fields.
+
+![[{ADD002EF-6E67-4BE5-AF09-5E97A7BB6193}.png]]![[{133B84DF-581F-48C4-BF76-31722127028D}.png]]
+![[{4A121191-265A-4D98-9363-EBA4C4385243}.png]]![[{0C846961-B57B-4DE0-B754-9FEC70CFC6E8}.png]]
+
+Representing single assignment store:
+
+Representing an en environment:
