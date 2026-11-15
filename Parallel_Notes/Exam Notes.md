@@ -506,6 +506,1209 @@ Main stages of a simulation program:
 - Integrate with loop.
 - Finalize.
 
+
+# 8 - Concepts of MPI
+
+
+What:
+- Multiple copies of the program are started through a launcher program that tracks how to make connections between them
+- Data sent from one process to another, gets its own copy.
+- Single program multiple data (SPMD). Not flynn category, but programming style.
+
+Communicators:
+- Communcation and parallel work is coordinated based on "Rank" which starts at 0 -> p-1, and world communicator "size".
+- Communication must have a matching statement. For example a send must have a recieve.
+- Can also divide world communicator into sub-communicators, with its own "rank" and "size.
+- Sub-Communicators can have virtual topologies such as cartesian coordinates.
+
+
+Communication modes (blocking):
+- Standard: Whatver mode is default. 
+- Synchronized: Send-function will not return until reception is  acknowledged.
+- Buffered: Explicitly manage the memory thats used for sending/receiving.
+- Ready: Assume the receiver has already initiated the receive.
+
+
+Collective operations:
+- Operations every rank in communicator must call before completing.
+- Broadcast: Distributing a value from one rank to all other.
+- Scatter: Splitting large data sets into equal parts and distribute.
+- Gather: Receiving a number of equal parts, and putting them back together into a large data set.
+- Barrier: Makes all processes wait at the barrier.
+
+
+Derived data types:
+- MPI has a handful of built in data types: Integers, f loats, chars and so on.
+- Can be combined into more elaborate structures.
+- Lets you send structs, columns/rows, sub array and so on.
+
+Parallel I/O:
+- Common way to write/read is to have a master thread who organizes contents and writes/read the file.
+- MPI has a feature to let ranks open and write to the same file in different parts, but only works if OS allows it.
+
+Misc:
+- MPI can do some one-sided communications as long as the receiver has a buffer for it.
+- Its possible to receive from "anywhere".
+- There are non-blocking collective operations.
+- There is a performance profiling interface.
+
+
+# 9 - Six function MPI
+
+The six functions:
+- `MPI_Init ( &argc, &argv );`
+- `MPI_Comm_rank(MPI_COMM_WORLD, &rank);`
+- `MPI_Comm_size(MPI_COMM_WORLD, &size);`
+- `int MPI_Send(const void *buf, int count, MPI_Datatype datatype, int dest, int tag, MPI_Comm comm);`
+- `MPI_Recv(const void *buf, int count, MPI_Datatype datatype, int src, int tag, MPI_Comm comm, MPI_Status *status)`
+- `MPI_Finalize();`
+
+
+# 10 - Advection equation using six-function MPI
+
+
+How to split domain:
+- Divide problem size by rank count, then allocat seperate parts. Then you dont need to allocate full domain in each process, which saves memory.
+- Later concatenate the domain.
+- Can add extra boundary values if necessary.
+- Every rank can get an array with everyones domain size in it. Local_size containg \[5, 5, 4 ,4]
+- With this array can also obtain global index for each process.
+![[{0D8CBFE2-54C9-4EB7-BA32-F8CA2325954E}.png]]
+
+Concatenating results:
+- Different ways:
+	- Allocating an array with size of rank 0 array in rank 0, then writing the results from each rank.
+	- Can let the ranks take turns opening and writing to the same file. Still sequential.
+	- Can make each rank save its own file and then concatenate. 
+	- Can let everyone write at the same time to different  areas of the file.
+
+Border exchange:
+- Halo: A subdomain + its "ghost points".
+![[{C0835FC7-B58A-4B3F-9243-E0610F961FCC}.png]]
+
+# 11 - Collective operations (MPI)
+
+
+Barrier:
+- `MPI_Barrier(MPI_COMM_WORLD);`
+- Synchronization feature of sorts, but not memory fence.
+
+Broadcast:
+- `int MPI_Bcast (void *buffer, int count, MPI_Datatype datatype, int root, MPI_Comm communicator)`
+
+Reduce:
+- `MPI_Reduce(&x, &total, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);`
+- Other operations: MPI_MAX, MPI_MIN, MPI_PROD.
+
+All reduce:
+- `MPI_Allreduce(&x, &total, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);`
+
+
+Scan:
+- `MPI_Scan(&x, &running_total, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);`
+- Each rank gets the sum from rank 0 through itself, including its own value.
+- Other operations: `MPI_MAX`, `MPI_MIN`, `MPI_PROD`.
+
+Scatter:
+
+- `MPI_Scatter(data, 1, MPI_INT, &x, 1, MPI_INT, 0, MPI_COMM_WORLD);`
+- Rank 0 distributes its array `data`, giving one integer to each rank, stored in `x`.
+
+Gather:
+
+- `MPI_Gather(&x, 1, MPI_INT, results, 1, MPI_INT, 0, MPI_COMM_WORLD);`
+- Collects one integer from each rank into `results` on rank 0, ordered by rank.
+
+All gather:
+
+- `MPI_Allgather(&x, 1, MPI_INT, results, 1, MPI_INT, MPI_COMM_WORLD);`
+- Like gather, but every rank receives the complete array. No root argument.
+
+All to all:
+
+- `MPI_Alltoall(sendbuf, 1, MPI_INT, recvbuf, 1, MPI_INT, MPI_COMM_WORLD);`
+- Each rank sends one integer to every rank: `sendbuf[j]` goes to rank `j`.
+- `recvbuf[j]` holds the integer received from rank `j`. No root argument.
+
+
+# 12 - Point to point communcation modes (MPI)
+
+
+
+Send and receive:
+- For mutual exchanges, avoids deadlock.
+```c
+int MPI_Sendrecv (
+const void *sbuf, int scount, MPI_Datatype stype, int dest,
+void *rbuf, int rcount, MPI_Datatype rtype, int source,
+MPI_Comm communicator, MPI_Status *status
+);
+```
+
+
+Communication modes:
+- All blocking modes, meaning control doesnt return to caller before transmission can be guaranteed.
+	- Standard mode.
+	- Synchronized mode.
+	- Buffered mode.
+	- Ready mode.
+
+Standard mode:
+- `MPI_Send`
+- At liberty to do what is best on this machine and return control as soon as it can.
+
+Synchronized mode:
+- `MPI_Ssend`
+- Same argument list.
+- A bit slower, as call will not return to sender before receiver starts receiving.
+
+Buffered mode:
+- `MPI_Bsend`
+- Lets you allocate the buffer yourself, so you can make it a one long contiguous memory range for sending many tiny messages.
+```C
+int buffer_size = n*sizeof(msgsize) + MPI_BSEND_OVERHEAD;
+int *my_buffer = malloc ( buffer_size );
+MPI_Buffer_attach ( my_buffer, buffer_size );
+
+// ... MPI_Bsend
+
+MPI_Buffer_detach ( &my_buffer, &buffer_size );
+```
+
+Ready mode:
+- `MPI_Rsend`
+- Has to be 100% sure the recveiving call has been made.
+
+
+Non blocking communication:
+- Very useful for overlapping communication with computation.
+- An extra argument `MPI_Request *request`
+- Returns immediatly.
+- Frees program to do other stuff, then you can make sure the transfer has completed later.
+- The modes are `MPI_Isend`, `MPI_Issend`, `MPI_Ibsend` and `MPI_Irsend`.
+- Also: `MPI_Irecv`
+
+```C
+int MPI_Isend (
+	const void *buffer,
+	int count,
+	MPI_Datatype type,
+	int destination,
+	int tag,
+	MPI_Comm communicator,
+	MPI_Request *request
+);
+
+
+// ... program
+int MPI_Wait ( MPI_Request *req, MPI_Status *stat);
+// can aslo put MPI_STATUS_IGNORE if it is not needed
+
+
+// Can also make array to save these request
+MPI_Request my_reqs[42];
+// and wait for all
+MPI_Waitall ( 42, my_reqs, MPI_STATUSES_IGNORE );
+
+```
+
+
+Persistent sending and receiving:
+
+```C
+int x;
+MPI_Request req;
+
+// Prepare once — on the sending rank
+MPI_Send_init(&x, 1, MPI_INT, 1, 7, MPI_COMM_WORLD, &req);
+
+for (int i = 0; i < 10; i++) {
+    x = i;
+    MPI_Start(&req);
+    // Other work that does not modify x
+    MPI_Wait(&req, MPI_STATUS_IGNORE);
+}
+
+MPI_Request_free(&req);
+
+// On the receiving rank, use MPI_Recv_init instead:
+// MPI_Recv_init(&x, 1, MPI_INT, 0, 7, MPI_COMM_WORLD, &req);
+// Then use the same Start → Wait cycle before reading x.
+```
+
+```c
+int x;
+MPI_Request req;
+
+// Prepare: receive one integer from rank 0, with tag 7
+MPI_Recv_init(&x, 1, MPI_INT, 0, 7, MPI_COMM_WORLD, &req);
+
+for (int i = 0; i < 10; i++) {
+    MPI_Start(&req);                    // Start one receive
+    MPI_Wait(&req, MPI_STATUS_IGNORE);  // Wait for its message
+    printf("Received %d\n", x);         // Now safe to read x
+}
+
+MPI_Request_free(&req);
+```
+
+
+# 13 - Timing, scatter and gather
+
+
+Timing:
+```C
+// Optionally you can use barrier here to isolate the section you want to time
+//MPI_Barrier(MPI_COMM_WORLD);
+
+
+double t_start = MPI_Wtime();
+
+do_something_useful();
+
+double t_end = MPI_Wtime();
+
+printf ( “Something useful took %lf seconds!\n”, t_end – t_start );
+
+// You will get p different timings
+```
+
+Approximate communication time:
+- Sending size n message will be latency + inverse of bandwidth (seconds per byte).
+- "Hockney model" or pingpong model.
+- Hockneys experiment: Start clock, repeat a lot of iterations of; sending message a to b, and b to a, then stop clock, and divide time difference by 2, and number of messages. 
+- Can extract latency and bandwidth by varying size of message and number of messages.
+![[{EC37E60F-90B4-410B-A138-296791659F75}.png|275]]
+Scatter:
+- `MPI_Scatter` distributes domain to processes.
+
+```c
+// the four first elements are only needed in root.
+// sendbuf must be p times the size of sendcount
+int MPI_Scatter(
+	const void *sendbuf, int sendcount, MPI_Datatype sendtype,
+	void *recvbuf, int recvcount, MPI_Datatype recvtype,
+	int root, MPI_Comm comm
+);
+```
+
+Gather:
+- `MPI_Gather` collects domain parts to root process.
+- recvbuf has to be p times size of recvcount.
+
+```C
+int MPI_Gather(
+const void *sendbuf, int sendcount, MPI_Datatype sendtype,
+void *recvbuf, int recvcount, MPI recvtype, // only for root
+int root, MPI_Comm comm
+);
+
+```
+
+
+
+# 14 - Derived data types
+
+Derived types:
+- Can use derived types to be more elegant than packing.
+- Combines some other types in a structure that describes their layout in memory.
+- Derived types must be constructed and comitted to MPI for compiling and efficient representation, and then be used just as regular types.
+- Consists of type signature tn and displacement dn.
+- Displacement is memory offset compared to lower bound.
+![[Screenshot 2026-10-09 at 17.45.49.png|606]]
+
+Memory locations:
+- MPI_Aint: A special integer type provided by MPI that is large enough to represent memory addresses.
+- Displacements have this type.
+- Wrapper for pointers.
+
+
+Size of derived type:
+- Size: Sum bytes required for the structure (example 6 bytes for 1 float and 2 chars).
+- Extent: Sum bytes required for the structure if including spacing and gaps (example will be 9 bytes).
+- Can increase extent manually and add padding. Example of two float in each struct with 4 bytes padding between.
+![[Screenshot 2026-10-09 at 18.06.51.png]]
+
+Resizing types:
+```C
+int MPI_Type_create_resized (
+	MPI_Datatype old_type, // Type to start with
+	MPI_Aint lower_bound, // New value for lower bound
+	MPI_Aint extent, // New value for extent
+	MIP_Datatype *new_type // Result comes out here
+);
+
+MPI_Datatype new_type;
+
+MPI_Type_create_resized(
+    MPI_INT64_T,
+    0,
+    8 * sizeof(int64_t),
+    &new_type
+);
+
+MPI_Type_commit(&new_type);
+
+// Sends data[0], data[8], data[16]
+MPI_Send(data, 3, new_type, 1, 0, MPI_COMM_WORLD);
+
+MPI_Type_free(&new_type);
+```
+
+MPI extent:
+- Extent defines the distance in bytes between the starting positions of two consecutive instances of a datatype.
+- Displacement defines where data is located within one instance of the datatype.
+- Size is the number of bytes of actual data being sent, while extent can include gaps between elements.
+- Example: A datatype contains two floats at offsets 0 and 8. Its default extent is 12 bytes (assuming 4-byte floats).
+- Resizing the extent: Using MPI_Type_create_resized(), we can change the extent from 12 to 16 bytes without changing which floats belong to the datatype.
+- Why is this useful? When sending multiple instances (count > 1), MPI uses the extent to determine where the next instance starts.
+  - Extent = 12 → reads offsets 0, 8, 12, 20
+  - Extent = 16 → reads offsets 0, 8, 16, 24
+- Important: Changing extent does not change how much data is sent per instance or add padding to memory. It only changes the spacing between repeated instances.
+
+Creating structured types:
+```C
+int MPI_Type_struct (
+	int count, // How many parts do we have?
+	int * array_of_blocklengths, // What are their block lengths?
+	MPI_Aint *array_of_displacements, // What are their displacements?
+	MPI_Datatype *array_of_types, // What are their types?
+	MPI_Datatype *new_type // Output: a brand new type
+);
+
+int MPI_Commit_type ( MPI_Datatype *t );
+// make the translation from MPI types into the native
+//addressing mechanism of your computer
+
+
+// in practise 
+MPI_Datatype my_type;
+MPI_Type_struct ( foo, bar, baz, &my_type);
+MPI_Commit_type ( &my_type );
+MPI_Send ( ptr, 2, my_type, dst, tag, MPI_COMM_WORLD )
+
+struct Person {
+    int age;
+    float height;
+};
+
+struct Person people[2] = {
+    {20, 1.80},
+    {25, 1.75}
+};
+
+// Define the datatype
+int block_lengths[2] = {1, 1};
+
+MPI_Aint displacements[2] = {
+    offsetof(struct Person, age),
+    offsetof(struct Person, height)
+};
+
+MPI_Datatype types[2] = {MPI_INT, MPI_FLOAT};
+
+MPI_Datatype person_type;
+
+MPI_Type_struct(
+    2,
+    block_lengths,
+    displacements,
+    types,
+    &person_type
+);
+
+MPI_Type_commit(&person_type);
+
+MPI_Send(people, 2, person_type, dst, tag, MPI_COMM_WORLD);
+
+```
+
+
+Vector types:
+- Useful when dealing with multidimetional arrays and more.
+- Useful when collecting values with a common stride between.
+- Consists of count, block length, common stride. 
+
+```C
+MPI_Datatype my_type;
+
+// 5 blocks, 2 doubles per block, stride of 5 doubles
+MPI_Type_vector(5, 2, 5, MPI_DOUBLE, &my_type);
+MPI_Type_commit(&my_type);
+
+// Send columns 0 and 1
+MPI_Send(&ARRAY(0,0), 1, my_type, dst, tag, MPI_COMM_WORLD);
+
+// Send columns 2 and 3
+MPI_Send(&ARRAY(0,2), 1, my_type, dst, tag, MPI_COMM_WORLD);
+
+MPI_Type_free(&my_type);
+```
+
+![[Screenshot 2026-10-12 at 14.07.55.png|221]]
+
+Subarrays:
+
+```C
+double matrix[4][5] = {
+    { 1,  2,  3,  4,  5},
+    { 6,  7,  8,  9, 10},
+    {11, 12, 13, 14, 15},
+    {16, 17, 18, 19, 20}
+};
+
+MPI_Datatype my_type;
+
+int sizes[2]    = {4, 5};  // Entire matrix: 4 rows, 5 columns
+int subsizes[2] = {2, 3};  // Select 2 rows, 3 columns
+int starts[2]   = {1, 1};  // Start at row 1, column 1
+
+MPI_Type_create_subarray(
+    2,
+    sizes,
+    subsizes,
+    starts,
+    MPI_ORDER_C, // C style order (row major), MPI_ORDER_FORTRAN for cmo
+    MPI_DOUBLE,
+    &my_type
+);
+
+MPI_Type_commit(&my_type);
+
+// Send selected subarray
+MPI_Send(&matrix[0][0], 1, my_type, dst, tag, MPI_COMM_WORLD);
+
+MPI_Type_free(&my_type);
+```
+
+
+Other types:
+```C
+int MPI_Type_contiguous (int count, MPI_Datatype oldtype, MPI_Datatype *newtype);
+// Block of memory
+
+int MPI_Type_indexed (
+int count, // Nr. of parts
+int *block_lengths, // List of blocklengths for the parts
+int *displacements, // List of their displacements
+MPI_Datatype oldtype, // What kind of elements?
+MPI_Datatype *newtype
+);
+// Similar to MPI_Type_struct just with all elements same type.
+
+```
+
+# 15 - Communicators (MPI)
+
+Communicator:
+- A set of ranks, with a size.
+- Can be different structures.
+
+Group:
+- Set of ranks used to create a communicator.
+```c
+// int MPI_Comm_group ( MPI_Comm comm, MPI_Group *group );
+//fetches the group of ranks in the communicator
+
+// This gets us a group that contains all the ranks
+MPI_Group everyone;
+MPI_Comm_group ( MPI_COMM_WORLD, &everyone );
+
+// Include
+int keep[3] = {0, 2, 4};
+
+MPI_Group A;
+MPI_Group_incl(everyone, 3, keep, &A);
+
+// Exclude
+int remove[3] = {1, 3, 5};
+
+MPI_Group evens;
+MPI_Group_excl(everyone, 3, remove, &evens);
+
+// Create another group example
+int keep_B[3] = {2, 3, 5};
+
+MPI_Group B;
+MPI_Group_incl(everyone, 3, keep_B, &B);
+
+// Now we have:
+// A = [0, 2, 4]
+// B = [2, 3, 5]
+
+// Union
+MPI_Group united;
+MPI_Group_union(A, B, &united);
+
+// Intersection
+MPI_Group shared;
+MPI_Group_intersection(A, B, &shared);
+
+// Size
+int size;
+MPI_Group_size(A, &size);
+
+// Create new communicator with the group
+MPI_Comm subcomm;
+MPI_Comm_create(MPI_COMM_WORLD, A, &subcomm);
+
+```
+
+Graphs:
+- Can arrange ranks in a communicator into a directed graph, where each rank points at its neighbours.
+- Heap: Parent = n/2, left = n\*2, right = n\*2 +1
+
+Heap structure example :
+```C
+// Neighbours for ranks 0, 1, 2, 3, 4, 5, 6:
+int edges[] = {1, 2,  0, 3, 4,  0, 5, 6,  1,  1,  2,  2};
+
+// Cumulative neighbour counts:
+int index[] = {2, 5, 8, 9, 10, 11, 12};
+
+MPI_Comm tree;
+MPI_Graph_create(MPI_COMM_WORLD, 7, index, edges, 0, &tree);
+
+
+int rank, count;
+MPI_Comm_rank(tree, &rank);
+
+int neighbours[3]; // At most 3 neighbours in our binary tree
+
+MPI_Graph_neighbors_count(tree, rank, &count);
+MPI_Graph_neighbors(tree, rank, count, neighbours);
+```
+
+
+
+# 16 - Cartesian communicators and Parallel I/O (MPI)
+
+
+
+# 17 - Pthreads introduction
+
+Stack:
+- Stores local variables and function calls; memory is automatically managed.
+
+
+Heap:
+- Heap: Stores dynamically allocated memory (`malloc()`), which must be manually released (`free()`).
+
+Data:
+- Data segment: Stores global and static variables that exist throughout the program.
+
+![[{3BBB9BF9-641B-4DFF-9BCB-A4BF37A6AC52}.png]]
+![[{567EE948-E9A2-40A3-93A7-C96517B62B6E}.png]]
+![[{BD5C477E-8165-4CCE-B605-12F2BA4DDAE4}.png|507]]
+Concept of concurrency:
+- Can improve programs by relaxing the restriction that the statements must only be completed in one specific order.
+- Examples: database transactions, computations, web pages served, image rendered.
+
+The PRAM model:
+- Parallel random access machine, simplfied theoretical computer.
+- Four conflict write policies:
+	- Common value: Only allows asignment if values are the same.
+	- Arbitrary (Actually used): Random value among the attempts.
+	- Priority: Gets value from highest priority thread.
+	- Reduction: Assigns result by doing a operation on the attemps, such as sum, prodcut, AND.
+
+Shared memory parallelism:
+- Pricate work space: local variables in stack.
+- Shared global works space: data and heap can be used for collaboration and communication.
+
+Race Condition:
+- Occurs when multiple threads access shared data concurrently (with at least one modifying it), and the result depends on the order or timing of execution.
+- The code segment that must not overlap is called a critical section.
+
+Mechanisms to achieve exclusive access in critial sections:
+- Atomic operations
+- Load Linked & Store Conditional instructions
+- Mutex (lock) and semaphore data structures
+- Higher-level programming model constructs
+- All need hardware support for underlying operations. Dijkstras implementation in purely software leads to very slow performance.
+
+Pthreads operations:
+- Start.
+- Stop.
+- Set and release a memory lock.
+- Wait until some other thread wakes them up.
+- Wait for every other thread at a barrier.
+
+Pthread limitations:
+- Slow implemetation and lots of code required for tasks.
+- Alternative: OpenMP.
+
+
+# 18 - Creating and removing pthreads
+
+![[Screenshot 2026-10-12 at 18.07.06.png|641]]
+Using pthreads:
+- Posix: Portable Operating System interface.
+- Requires OS support, which most do.
+- Need a function to call.
+- `#include <pthreads.h>`
+- `-pthread` compiler flag
+- "Threadable" functions have this signature ```void *my_function ( void *argument ){}```. 
+- The function body will have to cast the argument into the type it expects.
+- The caller of the function will have to cast the return value to what it expects.
+- `pthread_t mythread;`
+- `pthread_create(&mythread, settings, &function, &argument);`
+- `pthread_join(thread, &result);
+- Settings: can set priority, lifetime, stacksize and more.
+
+Example:
+```c
+#include <pthread.h>
+#include <stdio.h>
+
+void *double_number(void *argument) {
+    int *number = (int *)argument;  // We know the argument points to an int
+
+    *number = *number * 2;   // Modify that int
+    return argument;        // Return a pointer to the same int
+}
+
+int main(void) {
+    int value = 21;
+    pthread_t thread;
+
+    // Pass the address of value to double_number:
+    pthread_create(&thread, NULL, double_number, &value);
+    // (thread address, settings, function, argument)
+
+    void *result;
+    pthread_join(thread, &result); // Wait and collect its returned pointer
+
+    int *answer = (int *)result;
+    printf("%d\n", *answer);       // Prints 42
+
+    return 0;
+}
+```
+
+
+HPC - style pthreads:
+- Usually dont want more threads than cores.
+- All threads tend to do same thing.
+- Perform on large amount of shared data, making it pointless to pass and recieve values from function calls.
+- Works by giving each thread unique index and calculating its parts from of the global problem from the index and total number.
+- Common to switch the void* argument for an integer instead, an have the amount of threads as a global variable (because memory addresses are intergers anyway).
+
+
+# 19 - Pthread operations and synchronization
+
+### Lock/unlock
+
+01_pi_seq:
+- Sequentially estimating pi using integration.
+
+02_pi_nolock.c:
+- Parallelizing it badly.
+- Making pi global and everyone contributes to the same variable.
+- Get wrong answer because of race condition, and bad performance.
+
+03_pi_diy_lock.c:
+- Attempt at mutex.
+- Using a shared integer "flag" to say whose turn it is given by ``
+  `flag = (flag + 1) % n_threads` and `while (flag != tid)`
+- Each thread busy waits for their turn.
+- Serialized but only without certain compiler optimizations. With optimizations it might cause a deadlock.
+- Volatile keyword is not memory fence or prevent race conditions, but it stops the compiler from moving read and write instructions that access it around in the code.
+
+04_pi_mutex.c:
+- shared variable `pthread_mutex_t lock;`
+- Initialize with `pthread_mutex_init (&lock, NULL);`
+- Destroy with ``pthread_mutex_destory (&lock);`
+- Still bad performance.
+- Can use the lock with the following sequence:
+```C
+pthread_mutex_lock ( &lock );
+pi += H / (1.0 + x*x);
+pthread_mutex_unlock ( &lock );
+```
+
+
+05_pi_mutex_fast.c:
+- Make local partial sums then update shared variable safely in the end.
+```C
+pthread_mutex_lock ( &lock );
+pi += pi_local;
+pthread_mutex_unlock ( &lock );
+```
+
+
+Synchronized iterations:
+- Many scientific applications use this kind of data-parallel computation seperated by synchronization. Lots of parallel programs use this pattern aswell.
+
+
+### Condition variables
+
+06_pi_cond_signal.c:
+
+- Uses a mutex, condition variable, and counter.
+- Early arrivals lock, increment the counter, and sleep.
+- Waiting releases the mutex so other threads can arrive.
+- The final arrival sees that everyone has arrived and skips sleeping.
+- It decrements the counter, signals one waiting thread, and unlocks.
+- Each awakened thread regains the lock, decrements the counter, and signals another.
+- The final departing thread skips signaling because nobody remains.
+- Threads are released through a chain of wake-ups.
+
+Two barriers are used:
+
+- First: ensure everyone has finished contributing to `pi`.
+- Then one thread uses the result and resets `pi`.
+- Second: ensure the reset finishes before anyone starts adding the next round's contributions.
+- The slides use separate arrival/departure counters and condition variables, plus a mutex for `pi`.
+
+
+
+07_pi_cond_broadcast.c:
+
+- Early arrivals add their local sums, increment the arrival counter, and sleep.
+- The final arrival adds its contribution and gets the completed sum.
+- It prints the result, resets `pi` and the arrival counter, then broadcasts.
+- It unlocks so awakened threads can continue.
+- Only one mutex and one condition variable are needed in this design.
+- No second barrier is needed because the final arrival completes the reset before releasing everyone.
+
+
+### Built-in barrier
+
+08_pi_barrier.c:
+
+- Uses `pthread_barrier_t`.
+- Initialize with `pthread_barrier_init(&barrier, NULL, n_threads)`.
+- Wait with `pthread_barrier_wait(&barrier)`.
+- Threads wait until `n_threads` have arrived.
+- The barrier resets automatically for reuse.
+- Destroy with `pthread_barrier_destroy(&barrier)`.
+- This pi example uses two barrier waits: before and after processing/resetting the result.
+
+
+
+
+# 20 - OpenMP introduction
+
+
+Open multi-processing:
+- Unit of parallelism is threads.
+- Used for scientific number crunching.
+- First released in 1997.
+- Not to be confused with OpenMPI.
+- More covenient way to use pthreads, and often implemented with ptreads.
+- Its core is a set of language extensions that must be supported by the compiler.
+- It also has a runtime library of functions that you can call to inspect the state of what the compiler has generated.
+
+Language extentions:
+- Phtreads code is repetitive:
+	- Declare, initialize, use, and destroy a mutex for every thing that needs protection. 
+	- Declare, initialize, use, and destroy a cond for every signal.
+	- Declare, initialize, use, and destroy an object for every barrier.
+	- Simple sets of operations make for lots of repetitive typing.
+- Can make the compiler generate the repetitive code, using a tiny languiage embedded in \#pragma directives. Used in OpenMP
+
+Basic block:
+```C
+int main () {
+	int a = 42, b = 32, c = 0;
+	{
+		int a = 64;
+		c = a – b;
+	}
+	printf ( “a = %d, b = %d, c = %d\n”, a, b, c );
+	return 0;
+}
+// will print "a = 42, b = 32, c = 32"
+```
+
+
+Using openMP:
+- `-fopenmp` compile flag.
+- Number of threads; OS recognized corecount or environment variable "OMP_NUM_THREADS". Or use `#pragma omp parallel num_threads(4)`
+- `#include <omp.h>`
+
+Thread count and thread-id:
+- `int tid = omp_get_thread_num();`
+- `int n_threads = omp_get_num_threads();`
+
+
+Mutex:
+- `omp_lock_t lock;` called outside of functions (global).
+- `omp_init_lock ( &lock );` called before parallel segment.
+- `omp_set_lock ( &lock );` called before critial code.
+- `omp_unset_lock ( &lock );` called after critial code.
+- `omp_destroy_lock ( &lock );` called after parallel section.
+
+
+Barrier:
+- `#pragma omp barrier`  Wait until every entry is ready
+
+
+Other common OpenMP directives:
+- `#pragma omp parallel` parallel basic block.
+- `#pragma omp for` divides for loop iterations among threads.
+- `#pragma omp parallel for` Combines the above: starts a parallel region and divides the loop among its threads.
+- `#pragma omp single` One thread executes the block; the others skip it.
+- `#pragma omp critical` Allows only one thread at a time into the protected block. Every thread that reaches it gets a turn.
+- `#pragma omp atomic` Protects a supported operation on one memory location, such as counter++.
+
+
+
+
+
+Condition variables: 
+- No direct equivalent of pthread_cond_t for thread signaling.
+
+Performance: 
+- Keep critical sections short; busy waiting and using more threads than cores can hurt performance.
+
+Correctness: 
+- Easier than pthreads, but you must still handle shared/private variables and choose safe parallel work.
+
+Examples: 
+- Manually using thread IDs and counts demonstrates the connection to pthreads; typical OpenMP code uses higher-level constructs.
+
+Why learn pthreads: 
+- Helps you understand what OpenMP handles behind the scenes.
+
+
+
+
+# 21 - Atomicity in OpenMP
+
+
+![[{251191C3-6CBF-4952-8C5D-752E7C700864}.png]]
+
+History of shared memory:
+- Dancehall architectures: 
+	- 1 core per chip, no cache memory and comparable clock rates for cpu and memory bus. 
+	- This gave use a architecture of multiple cpus and memory banks connected. All memory was shared by every CPU, Uniform memory access (UMA), therefore any cpu can contact any other cpu. 
+	- Another name is "Symmetric Multiprocessor" (SMP). Came with race condition.
+- The interconnect fabric+cpu design therefore supported atomic operations such as (fetch-and-phi): 
+	- Test-and-set : sets flag to 1, and returns previous
+	- Fetch-and-increment : returns x, and does x+1
+	- Fetch-and-add : returns x, and does x+n
+	- Compare-and-swap : changes x to new if x == value
+- 21st century: As the memory wall emerged, the memory hierarchy and therefore NUMA became common. SMP went from meaning "Symmetric Multiprocessor" to "Shared memory processor". Modern computers are multicore and therefore SMP. Cache-coherent NUMA (ccNUMA); cache attempts to bridge the memory performance gap, but only works for 1 processor at a time.
+
+
+Alternate atomic solutions 1:
+- If more than one copy in seperate CPU caches, invalidate the ones you arent targeted, and then lock access in the memory bank with value in it.
+- Used in Intel family and its compatible competitors (CISC).
+
+Alternate atomic solutions 2:
+- Load linked: LL is instruction that will fetch value to register, and tags the memory bank. Can then be manipulated with entire instruction set.
+- Store conditional: Attempts to write back to memory bank, and returns a fail if someone else altered it in the mean time.
+- Comes from MIPS line of processor designs, more RISC way of using explicit load/store.
+
+Alternate solution 3 (atomic reservoir memory):
+- CPUs access it directly, bypassing their caches, so there are no stale cached copies.
+- The special hardware provides atomic-access support.
+- Programs use special allocation functions to put variables there.
+- Trade-off: accesses are slower because caching is bypassed.
+- comes from the Stanford DASH line of SMP
+
+Atomics in x86_64 assembly:
+- CISC style: large set of complicated operations and multiple addressing modes, some instructions require multiple CPU cycles.
+- Atomic ops in x86 using "lock":
+	- lock incq (%rax) ← Atomically increment nr. at (%rax)
+	- lock addq $14,(%rax) ← Atomically add 14 to nr. at (%rax)
+	- lock xchg %rbx,(%rax) ← Atomically swap %rbx for (%rax
+- Therefore solution #1 of the variants. Grans exclusive access to either cache line, or the whole memory bus if necessary.
+
+Atomic ops in GCC:
+- GCC has built in functions that mirror fetch-and-phi ops, that arent directly part of c/c++ or other language:
+	- \__atomic_test_and_set
+	- \__atomic_fetch_add
+	- \__atomic_compare_exchange
+	- ...and so on
+- Used in C++ atomics, and maybe supported by C.
+
+
+Difficult part:
+- Atomics are not standardized at CPU architecture/assembly level, and will differ.
+- Atomics are not standardized at OS compiler level either; Functions of gcc are just gcc particular. 
+
+Atomicity in OpenMP:
+- For portability, openMP assumes your architecture and compiler supports some range of atomic instructions that can use these statements:
+- `#pragma omp atomic` for single line operation.
+- `#pragma omp critcal` for multiple lines. 
+- Makes it so we dont have to use lock.
+- After using `#pragma omp parallel` , a  collective of threads is called a "team", and the spawining thread is called a teams "master". `#pragma omp master`. Need to use barrier if other threads should wait after (difference from `#pragma omp single`).
+- `omp_get_max_threads();` return max number of possible threads outside of parallel region, `omp_get_num_threads();` returns how many threads in team.
+![[{A212FC87-B4F9-4A19-B3F0-40A3AAA35FCF}.png]]
+
+# 22 - OpenMP worksharing directives
+
+
+Partitioning work:
+- Can be done manually based of index:
+- `int tid = omp_get_thread_num();` to get id.
+- `int n_threads = omp_get_num_threads();` to get team number.
+- `for ( int x=tid; x<x_max; x+=n_threads )` round robin.
+- `for ( int x=bottom[tid]; x<top[tid]; x++ )` consecutive partition.
+- A bit of a hassle, can use OpenMP directives instead.
+
+Decomposition modes:
+- Functional: Divide work into subtasks.
+- Data: Dividide domain of work into subtask.
+
+
+
+Sections:
+- Used for functional decomposition.
+- Implicit barrier at the end of `sections`.
+- Can also use `#pragma omp parallel sections`
+
+```c
+#pragma omp parallel
+{
+	#pragma omp sections
+	{
+		#pragma omp section
+		{ /* Section #1 */ }
+		
+		#pragma omp section
+		{ /* Section #2 */ }
+		
+		#pragma omp section
+		{ /* Section #3 */ }
+		
+	}
+}
+```
+
+
+Clauses:
+- Optional set of terms that can control details of directives.
+- Eg. `num_threads(4)` for parallel directive, and `nowait` for all worksharing directives.
+- `private(x, tid, ...)`: Each thread gets own value of x even if x is defined in the outer scope.
+- `shared(y, pi_array, sum, ...)`: Threads get same value for y, but still need to use atomic.
+- `firstprivate(x)`: same as private but inherets startvalue from outer scope.
+- `reduction(+:pi, ...)`: gives each thread private pi but performs operation in the end. In this case plus.
+- `lastprivate(x)`: Variable receives the last logical iteration’s value.
+
+Loops:
+- Can use `#pragma omp parallel for` , or multiple `#pramga omp for` inside a `#pragma parallel` when you have a loop with a induction variable (i/j).
+
+Single:
+- `#pragma omp single`
+- Comes with a barrier as it is a worksharing directive.
+- Only one thread will execute, usually first arriving.
+
+# 23 - Loopscheduling, threads vs. caches
+
+
+Schedule:
+- clause that the for directive can use to direct how to partition the loop/iteration. `schedule(kind, blocksize)`
+- Blocksize is optional, but decides the minimum amount of iterations to distribute to a thread at a time. Too small blocksize causes unecessary scheduling but greater flexibility, large blocksizes allows for more efficient scheduling/distribution but can limit parallelism if too large.
+- Kind:
+	- Automatic: Default, lets compiler/runtime choose a way to distribute. Good for nested loops / multidim arrays.
+	- Runtime: Will search for shells environment variable "OMP_SCHEDULE" to choose what to use eg. "static, 4", "dynamic, 16" or "guided, 8".
+	- Static: Predetermined partitioning, eg. roundrobin with chosen blocksize.
+	- Dynamic: The next available thread gets next available work. Good pattern for load balancing the work, for web servers, transactional databases and other systems where there is an "infinite" stream of work. Can also be used with finiste streams if wanting load balancing.
+	- Guided: Starts with big blocks abd gradually shrink down to given block size, to attempt making the different threads reach the end barrier at similar times.
+
+
+Timing in OMP:
+- `double start/end = omp_get_wtime(void);`
+- Works like mpi timing.
+
+
+
+Experiment with advection equation:
+- Three loops: time iteration, y axis (rows) then x axis(columns).
+- Use omp for the y-axis: 
+- Using omp for the x-axis: Slows down quite a bit due to repeated starting and stopping the parallel region each time we move down a row. Moving the `#pragma omp parallel` to before the y-axis loop helps as then we are not repeatedly starting and stopping the team. Adding `nowait` helps even more as then faster threads can move onto the next row. The barrier at the end of the parallel region still makes sure all calculations are complete before arrays are swapped for next time step.
+- Using `#pragma omp parallel for` before the time iteration loop doesnt work as they are dependent on each other. 
+- False sharing: 
+	- schedule(static, 1) assigns one iteration at a time, round-robin. With two threads:
+	- Several adjacent elements fit in one cache line.
+	- A and B write different elements, but need ownership of the same cache line.
+	- Ownership repeatedly moves between cores, causing delays. This is false sharing. Delays are almost equal to full cache miss.
+	- The calculation can remain correct but slow. Larger contiguous blocks usually reduce the problem
+
+
+# 24 - Cache coherence
+
+
+Cache recap:
+- Write-through: immediatly write back to memory from cache after update. Simple, inexpensive but creates memory traffic.
+- Write-back: Delay operations in memory, and continure working with the cached copy. More complex implementation. Must mark dirty bit for modified lines. 
+- Both work fine when dealing with one cpu/cache hierarchy.
+- False sharing can happen with either policy when multiple cores: it concerns multiple cores writing different elements of the same cache line. Write-back does not eliminate the need to coordinate ownership.
+
+
+Cache coherence:
+- The issue of keeping multiple cpu caches up to date with each others modified values.
+- Solution falls into two categories:
+	- Snooping: CPU listens to each others memory traffic via shared branches of the interconnect. Issue with snooping: cost of broadcast operations can be costly if it is a large multilevel structure, and many participants. 
+	- Directory: Maintaining a centralized registry of cache lines and the various states they are in. 
+
+
+Snooping with write-through:
+- CPU2 listens to the interconnect for changes to relevant cache lines, and copies the changes from the interconnect traffic, or when needed from memory depending on implementation protocol.
+
+Snooping with write-back:
+- CPU2 listens to dirty-bit broadcasts from CPU1, and either waits until CPU1 writes back, or requests the updated values from CPU1.
+
+
+Directory:
+- Table to track cache lines.
+- Needs: entry for each memory block we want to track, a few bits to record its state (exclusive or shared, modified, uncached), and a bit vector with a bit for each processor.
+- Directory requires memory: Either fixed part of general system RAM or additional memory bank.
+- Coarse bit vector format: Can divide the cpus into n groups, then we need n bits for modified copies instead of cpuCount bits. Then use a seperate mechanism to figure out the coherence in the n group. 
+![[{2CDA8F22-FC07-49D9-AC74-0A2737BB4088}.png]]
+
+
+
+
+
+
+
+
+
+
+
+
+# 25 - Cache optimizations: Loop tiling and vector operations
+
+### Loop tiling
+- Loop tiling changes the order of the calculations so small blocks of data are reused while they are still in cache. The mathematical result stays the same.
+
+Matrix calculation:
+- For large matrices, data may be evicted from cache before it is needed again. Reloading it costs time.
+```c
+// C is initially zero.
+for (int i = 0; i < N; i++)
+    for (int j = 0; j < N; j++)
+        for (int k = 0; k < N; k++)
+            C[i][j] += A[i][k] * B[k][j];
+```
+
+Loop tiling for matrix caluulation:
+- Use the naive algorithm for smaller parts of the matrix.
+- This should be great for cache, as long as the tiles fit
+	- Stage 1: All sections in matrix C receive calculation Ax0 column \* B0x row
+	- Stage 2: All sections in matrix C receive calculation Ax1 column \* B1x row.
+	- Stage 3: All sections in matrix C receive calculation Ax2 column \* B2x row.
+![[{4420F1C0-F4A1-485D-A311-166EA0C63D2E}.png]]![[{ED6234A4-B14F-47A6-9229-F686A2B72D30}.png]]![[{3FA40D42-6401-4D0F-A880-9C716A717FA0}.png]]
+### Vectorization
+
+
+Vector registers:
+- SIMD (Same instruction multiple data).
+- Vector registers can hold more than 1 value at a time, and the cpu can apply the same operation to all of the values.
+- Vector registers get a little architecture specific, so they are really best left to the compiler to generate. 
+- It can fail or be inconistent, so possible to program  Intel vector registers by hand.
+- Could program directly in assembly, but also supported by intrinsics in higher level languages. Intrinsics are special functions the compiler recognizes and translates into particular machine operations.
+
+
+
+
+SSE2:
+- Set of SIMD instructions supported by x86.
+```
+#include <emmintrin.h>
+```
+- `__m128d` holds **two doubles** in 128 bits.
+- Aligned loads/stores require **16-byte-aligned addresses**.
+- Allocate with `_mm_malloc(size, 16)`; release with `_mm_free()`.
+
+Common intrinsics:
+- `_mm_load_pd(ptr)` → load two doubles.
+- `_mm_load_pd1(ptr)` → duplicate one double.
+- `_mm_add_pd(a,b)` → elementwise addition.
+- `_mm_mul_pd(a,b)` → elementwise multiplication.
+- `_mm_store_pd(ptr,v)` → store two doubles.
+
+Matrix multiplication:
+- Vectorize **2×2 tiles** by calculating two adjacent output elements together.
+- Duplicate an `A` value and multiply it by two neighboring `B` values.
+![[{7954A049-EFDC-48ED-8722-478BE04864A6}.png|502]]
+Important conclusions:
+- Tiling improves data reuse; vectorization processes multiple values per instruction.
+- Tiling gave the larger improvement in the lecture example.
+- Floating-point results may differ slightly; compare using a tolerance.
+- Multiple tiling levels can target different cache levels.
+- Optimized libraries such as OpenBLAS and MKL implement these techniques.
+
+
+
+
+
+
+
+
+
+# 26 - OpenMP tasks
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# 27 - Roofline analysis
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# 28 - Application types
+
+
+
+
+
+
+
+
+
+
+# 29 - Loose ends
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
 # 30 - GPU and U part 1
 
 
