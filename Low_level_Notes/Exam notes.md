@@ -466,7 +466,7 @@ The memory wall:
 Testing a function:
 - Problem instance: one possible example of input values for all input parameters.
 - Test case: problem instance together with the result of applying a correct implementation of the function being tested* on the given problem instance.
-- Corcner case: Edge case, test more likely to cause an error.
+- Corner case: Edge case, test more likely to cause an error.
 
 Primitive solution:
 - Testing different cases by manually entering or comment/uncomment test cases.
@@ -897,7 +897,7 @@ Bare metal programming:
 Runtime environment (RTE) and runtime system (RTS):
 - Memory management (stack, heap/allocated memory, garbage collection).
 - Aspects of programming languages that needs to be handled during run time, such as communcation between processes/threads, signals, dynamic loading and more.
-- Distinction between runtim system and operating system is not clear.
+- Distinction between runtim systeme and operating system is not clear.
 - Examples:
 	- FreeRTOS (from 1-2 kB RAM, from 5 – 10 kB ROM (e.g. FLASH))
 	- Zephyr RTOS (from, 6-8 kB RAM, from 3-8 kB ROM)
@@ -1399,21 +1399,115 @@ Translation units / compilation units:
 
 ![[{7ABF08DD-C68D-4C06-9AA2-901D0500DA71}.png]]
 ### Compiling stages:
-- Compiler: Compiles each unit from source code (.c) to human readable assembly code (.s). 
-- Assembler: Assembles the assembly code into relocatable binary object code (.o).
-- Linker: Combines these into an executable, resolving references between units.
-- Loader: Sets up executable program in memory and initialises data ares prior to running.
+
+Preprocessor:
+-  Inserts header contents wehre you write `#include`.
+- Expands macros defined with `#define`.
+- Outputs preprocessed C/C++ code.
+
+Compiler:
+- Compiles each unit from source code (.c) to human readable assembly code (.s). 
+- Three stages.
+
+- **Compiler Frontend (Understanding the language):**
+	- Lexing: SPlit the text into meaningful pieces, such as keywords, variable names, numbers, operators.
+	![[{B95CA7B8-2587-429F-9480-EDE2C33411D9}.png|523]]
+	- Parsing: works out how those pieces fit together—for example, which expressions belong inside an if statement.
+	![[{298D0563-CDEF-4A98-8149-FF60104ACE92}.png]]
+	- Semantic analysis: Checks languages rules, and checks whether variables are declared and types are used correctly.
+	- Result: A checked program represented as IR (intermediate representation).
+	
+- **Compiler Middle-End/optimizer (Optimize concepts):**
+	- The IR is a compiler language that is easy to optimize, machine-idependent and language independent.
+	- Analyses the IR to find calculations that can be simplified or removed.
+	- Applies optimizations without changing the programs observable behaviour.
+	- This includes:
+		- Constant propagation: Replacing a variable with its known value.
+		- Constant folding: calculate constant expressions during compilation.
+		- Dead-code elimination: remove unused calculations or unreachable code.
+		- Loop optimizations: avoid repeating unnecessary work.
+	- Result: optimized IR.
+	
+- **Compiler backend (Generating a language):**
+	- Converts the optimized IR into assembly for a particular instruction set, such as ARM or RISC-V.
+	- Instruction selection: chooses suitable processor instructions for each operation.
+	- Register allocation: decides which values go into which registers, reusing registers when possible. Values that do not fit may need memory.
+	- Symbol table: Keep track of what symbols are (func, var etc.) and their memory location.
+	- Result: target assembly code.
+
+Assembler (Compiler Backend?):
+- Assembles the assembly code into relocatable binary object code (.o).
+- Converts instructions in assembly to instructions in binary encodings for the processor.
+- Addresses can still be adjusted when combined with other object files.
+- Output is binary object file. Contains: Symbol table, .text, .data, information about relocatable parts, and debug data.
+- Two pass approach:
+	- First pass: Generate symbol table.
+	- Second pass: Resolve labels in this CU (replace with address of instruction/variable) and generate machine instructions.
+![[{2C719B1D-3F07-4E86-A674-C327C0FDE3E9}.png]]
+
+Linker (Compiler Backend?):
+- If a the compiled main.c has a declared function swap, the linker combines main.o and swap.o, connects the call to the definition, and adjusts references between the files. It also handles required libraries.
+- Combines these into an executable (.exe/.out), resolving references between units.
+- Combines object files and required library code.
+- Connects references between files—for example, a function call in one file to its definition in another.
+- Adjusts addresses as the pieces are combined.
+- Static libraries are copied into the executable, while dynamic/shared libraries are in a seperate file. The executable has information about whoch library functions it needs.
+- Output: an executable.
+
+Loader:
+- Sets up executable program in memory and initialises data ares prior to running.
+- The executable is initially a file on disk. The loader, which the lecture identifies as part of the operating system, sets it up in memory.
+- It places the program’s code and data into memory, initializes the required data areas, and arranges for execution to begin.
 
 
 
+### Misc
 
+Intermediate Representation (IR):
+- The IR is a compiler language that is easy to optimize, machine-idependent and language independent.
+- Basic block: a straight sequence of instructions, with one entry and one exit. Branching can happen at the end.
+- Data-flow graph (DFG): shows which operations depend on results from other operations. Represent flow of data inside basic block.
+- Control-flow graph: shows which basic block can execute next, including branches and loops.
 
+Register allocation:
+- Allocate registers to variables to minimise memory accesses.
+- Liveness analysis: Compilers analyse lifetime of variables for register allocation.
+- Volatile keyword: Some variables always need to be in memory, but still brought to register for using the value.
 
+Dynamic linking:
+- Most operating systems can link modules (shared libraries, .so on linux platforms) at load time.
+- Saves storage compared to static linking.
+### Optimisations in action
 
+A compiler pass:
+- A pass is the elementary unit of work. Can be:
+- Analysis pass: Does not change the code, only extract info.
+- Transformation pass: Make some code more efficient or make some code easier to be optimised later (normalisation passes).
+- By repeating these simple passes, compilers achieve big optimisations.
 
+Dead code elimination:
+- Eliminate assignments to variables that are never used, or basic blocks that arent reached.
 
+Constant propagation:
+- Identify variables that are constant, substitue the constant elsewhere. 
 
+Constant Folding:
+- Compute and substitue constant expressions.
 
+![[{D88F93C9-7ADF-42CA-910B-566FC777F1AE}.png]]
+![[{73A73833-BBD9-4F8D-90F5-0BF2BFC3B585}.png]]![[{9247E8BE-240C-45DB-A0D9-23AD1C62744F}.png]]![[{B77361D6-7756-458E-8D26-AE909FEBCFA5}.png]]
+
+Loop optimizations:
+- One of compilers most powerful weapons.
+- Examples: Loop unrolling and Loop-invariant Code Motion.
+
+Loop invariant code motion:
+- move a calculation outside a loop when its result stays the same.
+
+Loop unrolling:
+- put several iterations’ work into one loop iteration.
+- Faster counter makes for less loop checks.
+- Bigger loop body creates opportiunities to bundle/reorder instructions and reduce stalls.
 
 
 
@@ -1425,4 +1519,136 @@ Translation units / compilation units:
 # 11 - Guest Lecture on edge AI
 
 
+Edge AI:
+- Runs a neural network close to where the data is collected.
+- Local processing can reduce communication, reduce cloud response delay, and support realtime decisions. 
+- Challenge is doing useful inference with limited resources.
+- Specialized neural networks on real-time embedded systems.
+- Some common metrics:
+	- Energy per inference.
+	- Low + predictable lantency.
+	- Throughput.
+	- Power consumption (cooling).
+
+
+Execution time formula:
+- T_exec = W / (E * P)
+- \[Seconds] = \[Operations] / (\[0-1] * \[Operations per second])
+- Where T is execution time, W is workload, E is efficiency and P is peak performance.
+- Decreasing workload: Better algorithms.
+- Increasing efficieny: Mapping optimizations.
+	- Examples: Reuse buffers, remove unecessary operations, improve data reuse and more. 
+- Increasing peak performance: Hardware optimizations.
+
+
+Quantization:
+- Use fewer bits for weights and/or activations. This reduces storage and memory traffic, and can improve computation speed if the hardware supports the precision efficiently. The tradeoff is possible accuracy loss. FP32 → INT8 gives approximately 4× smaller raw storage.
+
+
+Sparsity:
+- Many weights are zero, so their multiplications can potentially be skipped. However, storing nonzero locations adds overhead, and irregular accesses and work distribution can limit parallelism. More zeros do not automatically mean faster execution.
+
+
+Topology:
+- The network’s structure, layers, channels, and connections. A smaller network generally requires fewer parameters and operations, potentially at the expense of accuracy.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # 12 - Programming accellerators and course wrap up
+
+RPI OS:
+- Variants: Lite version without GUI, with  GUI and apps, 32vs64 bit.
+- Memory: 80-600 MB.
+- DISK: 1-4GB.
+- Desktop OS, not typical embedded OS.
+
+CFS: 
+- Completely fair scheduler.
+- Indirectly takes priority into acocount with "nice" values.
+- Higer priority = larger share of CPU time.
+
+
+
+ Coprocessors:
+- Tightly coupled to the CPU.
+- Executes certain opcodes/instructions.
+- CPU can supsend execution and wait for result, or;
+- Continue executing while waiting (superscalar processor).
+- If coprocessor not available, the instruction is emulated in hardware (illegal instruction trap / interrupt). Much slower.
+- ARM architecture can support up to 16 coprocessor.
+
+Accelerators:
+- Connected to CPU bus.
+- Cooperates with CPU via shared memory.
+- Data and control registers.
+- Specialized ISA (if programmed), or hardwired logic (pure hardware), or FPGA, or combination.
+- Shared memory (SoC).
+- FPGA:
+	- Field programmable gate array.
+	- Writeable-hardware.
+	- Can act as user programmable accelerator.
+	- Lower efficiency but higher flexibility.
+
+![[{DC45051D-03FA-4BAF-BAC3-3DC555F5997E}.png]]
+Accelerators examples:
+- DMA: Direct memory access. Moves data to/from memory to offload CPU:
+- DPS: Digital signal processor. Measure, filter or compress continuous analogs signals.
+- ISP: Image signal processor.
+- GPU: Graphics processing unit. Used for calculations with high degree of parallelism, such as graphics, matrix/vector operations, AI related calculations and more. Programmed in CUDA or OpenCL.
+- GP-GPU: General purpose gpu.
+- NPU: Neural Processing Unit, used for AI and deep learning. Either train new AI models or inference. Uses smaller bit operators.
+- TPU: Tensor processing unit. Programmed with tensorflow, also used for neural network / machine learning.
+
+
+Wirths law:
+- Software is getting slower faster than hardware becomes faster.
+
+
+Good software design decisions:
+- Choose the best algorithm for the problem, and that fits the hardware.
+- Minimize memory size and access.
+- Optimize performance of the application, making use of availabe parallelism.
+- Take advantage of hardware support for memory management.
+
+Race-to-halt:
+- Finish work quickly, then enter low power state.
+
+DVFS:
+- Dynamic voltage and Frequency scaling.
+- Can reduce clock frequency to reduce dynamic power, but does nothing for total energy.
+- Can reduce voltage to reduce both static and dynamic power consumption.
+- Need to adjust both of these so that the CPU is running just fast enough.
+
+Multicore CPU:
+- Each core has its own execution hardware and can run a separate thread.
+
+MPSoC:
+- Multiprocessor System-on-Chip.
+- An entire system containing multiple processing units on one chip, together with interconnections, memory controllers, and other components.
+- Can contain several CPU cores, interconnects, memory controllers, GPU, other accelerators.
+
+Hyperthreading:
+- Intel’s name for simultaneous multithreading (SMT).
+- A physical core maintains separate execution state, such as registers and a program counter, for multiple threads.
+
+Internet of things:
+- Interconnected smart devices.
+- Sensor, processing, communcation, database.
+- Three main types: Implanted, wearable, environmental.
+- Can used environment to harvest energy.
+

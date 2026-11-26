@@ -1084,6 +1084,175 @@ MPI_Graph_neighbors(tree, rank, count, neighbours);
 # 16 - Cartesian communicators and Parallel I/O (MPI)
 
 
+### Cartesian communicators
+
+- Special case of graph communicator.
+- Left/right (1D), Up/Down(2D), in/out (3D).
+
+```C
+#include <mpi.h>
+int main(int argc, char **argv)
+{
+    MPI_Init(&argc, &argv);
+
+    // Get the total number of processes
+    int size;
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+
+    // Choose a 2D process grid automatically: dims[0] = x, dims[1] = y
+    int dims[2] = {0, 0};
+    MPI_Dims_create(size, 2, dims);
+
+    // No wraparound along either axis
+    int periods[2] = {0, 0};
+
+    // Allow MPI to assign different ranks in the new communicator
+    int reorder = 1;
+
+    // Create the Cartesian communicator
+    MPI_Comm cart_comm;
+    MPI_Cart_create(
+        MPI_COMM_WORLD,  // Source communicator
+        2,               // Number of dimensions
+        dims,            // Number of processes along x and y
+        periods,         // Wraparound settings for x and y
+        reorder,         // Whether MPI may reorder ranks
+        &cart_comm       // Output communicator
+    );
+
+    // Find this process's rank and coordinates in the Cartesian grid
+    int rank;
+    int coords[2];
+    MPI_Comm_rank(cart_comm, &rank);
+    MPI_Cart_coords(cart_comm, rank, 2, coords);
+    // coords[0] = x, coords[1] = y
+
+    // Find neighbouring ranks in cart_comm
+    int left, right, down, up;
+
+    //communicator, dimension, distance, source, destination
+    MPI_Cart_shift(cart_comm, 0, 1, &left, &right);
+    MPI_Cart_shift(cart_comm, 1, 1, &down, &up);
+
+    // Use cart_comm and the neighbour ranks for communication here
+
+    MPI_Comm_free(&cart_comm);
+    MPI_Finalize();
+    return 0;
+}
+```
+    
+### I/O
+
+Sequential file I/O:
+- Usually operating systems only provide system calls for:
+	- Open files for reading/writing at the start.
+	- Read/write the next n bytes.
+	- Append n bytes.
+	- <stdio.h> offers little random access.
+- Even with random access, simultaneous writes to a shared storage device can become a bottleneck because the device has limited capacity to process them in parallel.
+
+Parallel file systems:
+- Data: the actual contents of the file, such as numbers from your simulation.
+- Metadata: information describing the file, such as its name, directory, size, permissions, and how to locate its contents.
+- The central idea is one logical file, with its contents distributed across storage devices for parallel access.
+
+MPI_IO:
+- All ranks can open the file simultaneously.
+- View: Window where a rank can write without touching other ranks data.
+- Wont actually get much speedup unless running on a machine with parallel disk arrays and the right file system.
+
+Example use with indexing:
+```c
+#include <mpi.h>
+
+int main(int argc, char **argv)
+{
+    MPI_Init(&argc, &argv);
+
+    int rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+    // Declare an MPI file handle
+    MPI_File file;
+
+    // All processes open the same file
+    MPI_File_open(
+        MPI_COMM_WORLD,                     // Participating processes
+        "results.bin",                      // File name
+        MPI_MODE_CREATE | MPI_MODE_WRONLY,  // Create if missing; write only
+        MPI_INFO_NULL,                      // No extra optimization hints
+        &file                               // Store the file handle here
+    );
+
+    // Each process writes to a separate position
+    MPI_Offset offset = (MPI_Offset)rank * sizeof(int);
+
+    MPI_File_write_at_all(
+        file,               // Open file handle
+        offset,             // Position in bytes with the default file view
+        &rank,              // Address of the value to write
+        1,                  // Write one value
+        MPI_INT,            // Value is an integer
+        MPI_STATUS_IGNORE   // Ignore the returned status
+    );
+
+    // All processes close the file
+    MPI_File_close(&file);
+
+    MPI_Finalize();
+    return 0;
+}
+```
+
+Example with view:
+```c
+#include <mpi.h>
+
+int main(int argc, char **argv)
+{
+    MPI_Init(&argc, &argv);
+
+    int rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+    MPI_File file;
+    MPI_File_open(
+        MPI_COMM_WORLD,
+        "results.bin",
+        MPI_MODE_CREATE | MPI_MODE_WRONLY,
+        MPI_INFO_NULL,
+        &file
+    );
+
+    // Each process's view starts at a different byte position
+    MPI_Offset displacement = (MPI_Offset)rank * sizeof(int);
+
+    MPI_File_set_view(
+        file,           // File handle
+        displacement,   // Starting position in BYTES from file beginning
+        MPI_INT,        // etype: unit used for offsets within this view
+        MPI_INT,        // filetype: contiguous integers, with no gaps
+        "native",       // Use the machine's native data representation
+        MPI_INFO_NULL   // No extra optimization hints
+    );
+
+    // Write at the beginning of this process's view
+    MPI_File_write_all(
+        file,
+        &rank,
+        1,
+        MPI_INT,
+        MPI_STATUS_IGNORE
+    );
+
+    MPI_File_close(&file);
+    MPI_Finalize();
+    return 0;
+}
+```
+
+
 
 # 17 - Pthreads introduction
 
@@ -1645,12 +1814,75 @@ Important conclusions:
 # 26 - OpenMP tasks
 
 
+Task-based programming:
+- Alternative view of how to express parallelism.
+- Nested parallelism inside two for loops or hidden with a function call is invalid.
+- Task-based programs can be displayed with dependenciy graphs.
+- can use `#pragma omp task { task (); }`
+- can also use `#pragma omp taskwait` to wait for all spawned tasks to finish.
+- You can also make tasks out of things without having a parallel region, but they will just be added to a list and run in sequence. 
+- When there is a live team of threads active, they’ll pick up tasks from the task graph in parallel.
+- A task can create more tasks; and the arguments/return values can infer dependencies. Can also use taskwait directives.
+- Common pattern / use case: problems where the parallelizable work comes out of each nesting level in a recursive function call, like quicksort.
+```c
+#pragma omp parallel
+{
+	#pragma omp single
+	start_the_circus(); // one thread starts the recursive function, which will create enough parallel work/tasks
+}
+```
+
+```c
+// calling a function into a task
+#pragma omp task
+some_useful_function ( arg1, arg2, arg3 );
+
+// can also define the function with omp task and then it will be ran as a task
+#pragma omp task
+void some_useful_function ( int arg1, int arg2, int arg3) { … }
+```
+![[{B2691313-59CF-42B6-8AB5-92A84038D660}.png]]
+```c
+#pragma omp parallel
+{
+    #pragma omp single
+    {
+        for (int start = 0; start < 1200; start += 100) {
+            #pragma omp task firstprivate(start)
+            {
+                // Ordinary function with a sequential inner loop.
+                do_something(data + start, 100);
+            }
+        }
+
+        #pragma omp taskwait
+    }
+}
+```
 
 
 
+Quicksort example:
+```c++
+mot_qsort( int64_t *buffer, int64_t lo, int64_t hi ){
+// ...
 
+#pragma omp task
+mot_qsort(buffer, lo, split);
 
+#pragma omp task
+mot_qsort(buffer, split + 1, hi);
 
+// ...
+
+}
+
+#pragma omp parallel
+{
+    #pragma omp single
+    mot_qsort(buffer, 0, count - 1);
+}
+```
 
 
 
@@ -1660,15 +1892,45 @@ Important conclusions:
 
 # 27 - Roofline analysis
 
+![[{7913F028-31BE-4F05-90E6-3B7088719170}.png]]
+![[{08D1E3E2-D327-4A72-BDD4-3A740A776839}.png]]
+
+Amdahls law and speedup:
+- Amdahls law: T(n) = T_s + T_p / n
+- Speedup: S(n) = T_1 / T_n = (T_s + T_p) / (T_s + T_p/n) 
+
+Gustafsons law and scaled speedup:
+- Gustafson’s law: \(T_1 = T_s + nT_p\)
+- Scaled speedup: \(S = T_1/T_n = (T_s + nT_p)/(T_s + T_p)\)
+
+Hockneys communication model:
+- T(m) = α + βm = α + m/B
+- Where m is message size, α is fixed startup latency per message, β (seconds/byte) is transfertime per byte, and B is 1/ β.
+- ignores the fact that message latency is affected by the communication library call, the operating system, the microcontroller in the network interface, the condition of the network cable. Also ignores existence of other message on the same network capacity.
 
 
+Popular processor metrics (not necessarly useful):
+- MIPS (Millions of Instructions Per Second).
+- FLOPS (floating-point operations per second).
+- GHz / MHz: would only be useful if program speeds were proportional to clock rate.
+- Core-count, also different types of cores on the same chip.
+
+Problems with benchmarks:
+- Only really measuring the performance and speed of that particular benchmark.
+- In order to estimate how fast your particular program can run on a given computer, it’s helpful to analyze what kind of work the code does most of.
+
+Data movement and opertions:
+- A programs work can be usefully divided into:
+	- The parts that move numbers in and out of the processor (load store).
+	- The parts that combine numbers in the processors (operations).
 
 
-
-
-
-
-
+Roofline model:
+- Performance memory = Memory Bandwidth \* Arithmetic intensity (I)
+- \[Flops / second] = \[Bytes / second] \* \[Flops / byte]
+- I_ridge = Performance Limit / Memory bandwidth
+![[{1FFAC0AA-F9AB-4882-96C2-999F4640AC7A}.png|473]]
+![[{A33974AC-8373-4E4F-844E-01D401EC566F}.png]]
 
 
 
@@ -1678,19 +1940,119 @@ Important conclusions:
 # 28 - Application types
 
 
+7 computation classes (Seven dwarves of Berkeley From the berkely report):
+- Dense linear algebra.
+- Sparse linear algebra.
+- Structured grids.
+- Unstructured grids.
+- N-Body problems.
+- Monte carlo methods.
+- Spectral methods.
+
+Usefulness:
+- Using a program of type n-dwarf on a computer X, we know whether similar applications can be adapted well for the computer.
+
+Dense linear algebra:
+- Typically large/repeated matrix/vector calculations, where tthe operator often causes many instructions per element, such as matric multiplication (dot product).
+- Use cases: Quantum mechanics, Eigenvalue problems, data analytics (dimensionality reduction).
+![[{C3F048AC-9986-4874-8352-486DA7B4166B}.png]]
+Sparse linear algebra:
+- Similar to dense linear algebra, however many of the elements in matri are 0. 
+- This makes it more useful to turn it into a list of non-zero indices (CSR: Compressed Sparse Row).
+- More likely to be memory bound as operations have less work available per element.
+- Use cases: Physics of everyday things, inhomogeneous systems of linear equations, search engines, social networks, machine learning.
+![[{7DD8562F-303D-4859-A165-3F039EB998FB}.png]]
+
+Structured grids:
+- Similar to the advection equation problems.
+- Dividing the problem into equally sized pieces, where the near neighbour points affect eachother.
+- Data structures typically 2D, 3D, 4D, ... arrays.
+- Application areas and performance characteristics are similar to sparse linear algebra.
+
+Unstructured grids:
+- Same as structured grids just without the assumption that the neighbours are evenly spaced.
+
+N-body problems:
+- Problems consist of a list of coordinates for things that push eachother around. 
+- If every obdy can affect eachother, we get N\*(N-1) / 2 pairs
 
 
+Monte carlo methods:
+- Calculations that approach a solution by accumulating random numbers.
+- Dice, pi approximation and so on.
+- Well suited for parallel computation as each random iteration is independent.
+- Challenges: Hard to source random numbers.
 
-
-
-
+Spectral methods:
+- Most popularly used for the Fast Fourier Transforms (FFT), also laplace and wavelet.
+- Our familiar difference/volume/element methods develop values in neighbor points through combining them incrementally:
+![[{308ACB6A-4C4E-4B0C-AED1-1BB365AF5C51}.png]]
+![[{217035F4-4E5D-4DAA-8891-B0B7C7F6C883}.png]]
 
 
 # 29 - Loose ends
 
+### Simultaneous MultiThreading (SMT)
+
+- Lets one physical CPU core execute instructions from multiple threads during the same clock cycle.
+- Each thread has its own architectural state, such as its instruction pointer and registers, while sharing the core’s execution resources.
+- The operating system sees each hardware thread as a logical processor. With two-way SMT, 4 physical cores expose 8 logical processors.
+- The goal is to fill unused execution capacity. If one thread cannot use all available resources, instructions from another thread can use the remaining capacity.
+- SMT can also keep a core busy when one thread stalls, provided the other thread has ready instructions and available resources.
 
 
+### Superlinear speedup
 
+- When S(p) > p happens, we call it superlinear Speedup.
+- We expect S(p) = p at best, because of overhead.
+- This happens, when more of the total domain fits into lower level memory in the hierarchy, such that operations involving load/store become faster more often. When using p processes in n cores, we get n times the amount of cache L1. 
+![[{60AEE2F1-7BC2-455E-80B6-738BA0416B1A}.png]]
+### Load balancing
+
+- Strategies to mitigate unbalanced workloads:
+	- Static: Embed the partitioning of the problem directly in the source code.
+	- Semi-static: Examine the workload when the program starts, divide it then, and run with the inital partitioning until finished. 
+	- Dynamic: Adapt to the workload by shifting work around between participants during program execution.
+
+Recursive orthogonal bisection (Semi-static):
+- Start by finding 50% mark of cells with work/relevance along one axis.
+- Repeat until you have the number of equal weighted sections you want (2^n sections where n is the number of iterations you split the domain in half).
+
+Master/worker pattern (dynamic technique):
+- One thread becomes the master, rest of threads are workers.
+- Then the master either assigns threads tasks or they take tasks from a queue, and inform the master. 
+
+Work stealing (dynamic technique):
+- Similar to master/worker.
+- Each participant has own queue of tasks it has been assigned.
+- Other unemployed workes can reassign or take tasks from neighbours.
+- Each participant is both a "master" and a worker to its close neighbours.
+- Pro: Scales well. Cons: If the work is very unbalanced, it can take a while to even out. 
+
+
+### Hybrid programming
+
+- Combining multiple parallel programming models.
+- For example using MPI to communicate between several multicore SMP systems. Then we can have several cores either running pthreads or OpenMP. Inside each SMP system we can also have one or more GPUs running CUDA kernels.
+
+Example:
+- 4 nodes with 2 CPU sockets with 8 cores on each can run:
+	- 64 MPI ranks.
+	- 4 MPI ranks with 16 threads in each rank.
+	- 8 MPI ranks with 8 threads in each rank.
+	- 32 MPI ranks with 2 threads in each....
+- Best combination depends on how the program uses memory.
+- When using threads inside a MPI rank. you can:
+	- Make 1 thread handle communication (usually the best choice).
+	- Let all threads make MPI calls, even though some MPI calls arent thread-safe.
+	- Let all the threads use MPI, but enforce mutual exclusion with locks.
+
+Multiple GPUs:
+- Communication:
+	- 1 process that controls all GPUs-
+	- 1 process per GPU, and then each process talk via MPI.
+	- With the right kind of GPU you can get them to talk without involving hosting processes.
+	- With the right kind of MPI, you can send and recv messages directly in device memory.
 
 
 
@@ -1766,7 +2128,7 @@ GPU example specs (Nvidia RTX 5090):
 - Divided into 170 SMs (streaming multiprocessors).
 - The SMs contain each (4 partitions with 32 cores) 128  Cuda cores / 32-bit floating point units.
 - About 512 registers per cuda core (average), 16384 per partition, or 65536 per SM. 
-- 2048 threds per sm, 32  registers per thread. 
+- 2048 threads per sm, 32  registers per thread.  16 threads per core, 16 warps per partition.
 - 4 warps per sm, switch every cycle.
 
 GPU memory system:
@@ -2075,7 +2437,245 @@ boolean predicate
 
 # 33 - Shuffle shenanigans 
 
-### Performance pitfalls:
+## Performance pitfalls:
 
-Memory:
-- 
+### Memory 
+
+Memory (coalesced memory reads):
+- Cache lines in GPU: usually 128 bytes per line (32 threads 4 bytes each).
+- Memory allocated with cudaMalloc() is always aligned so byte 0 is the start of a cache line.
+- If needing a single byte from VRAM, the 128 byte region is loaded into L2/L1 cache.
+- Coalesced memory reads: Threads read sequential memory so that we require less fetched cache lines, better bandwidth utilization and more optimized cache use. 
+
+
+Good cache use:
+![[{EE2B55A2-FE68-48BC-80E1-F5421947CDFD}.png]]
+Bad cache use:
+![[{8B401431-3094-430B-ACEE-1500018A9BA9}.png]]
+
+Example: 
+- Answer is 2 - 1 - 2
+![[{B4D96804-DE0B-4A30-8F44-22BA44CCE52A}.png]]
+
+Memory (atomic write contention):
+- When multiple threads are working with the same atomic variable, their operations become serialized. 
+- Solution: Do seperate calculations then a single thread do the atomic operation (reduction).
+
+
+Struct of arrays:
+- Instead of storing each struct sequentially in memory in an array, store an array of each struct property, for better read sequences.
+
+![[{2B6545ED-F97A-4647-ACCD-D13E568F29EC}.png]]
+![[{F0886535-9A2F-4F69-9D7A-2F5CC257E6AF}.png]]
+
+Shared memory:
+- User managed L1 cache.
+- 100x faster than VRAM.
+- Can be used for inter-block communication.
+- Use for: Storing data you will reuse many times, and exchanging values between warps in a block.
+
+![[{097DB1C4-DE38-44BA-B985-D625B88F8253}.png]]
+
+
+
+Memory tips:
+- Vectorized loads: If struct/datatype is exactly 4, 8 or 16 bytes, the memory system guarantees your data is loaded in one operation. So if your struct is 4 floats and you need all 4 properties per struct, you dont need struct of arrays.
+- Using smaller data types: Less data to through the memory system reduces load on it, eg. short instead of int.
+
+
+
+
+### Suboptimal launch parameters
+- If you have to few blocks some SMs get no work.
+- Blocks that are too large can make register, thread limits or shared-memory limits prevent enough blocks to fit on sm. Can leave thread slots unused.
+- Blocks that are too small (less than 32 threads, or not multiple of 32), can make a lot of unactive threads/lanes. Can also hit the max blocks/SM residence limit before the threads in SM are full.
+
+
+### Thread divergence
+- This happens when threads inside the same warp take different execution paths, such as loops or if statements. 
+- This leads to a lot of waiting / inactive threads as they have to follow the same instruction path. 
+- Solution: Try to arrange warps so that each thread in a warp perform the same work/path.
+### Register spilling 
+- Temporarily write som register values to memory.
+- Upside: More threads can run simultaneously.
+- Downside: More memory transactions.
+- The compiler will spill registers when it believes it will improve overall performance.
+- How to resolve: Consider recomputing values if doing so is cheaper than memory fetch. Also can cut fields from structs that are not realted to the kernel.
+
+### PCIe bandwidth
+- PCIe is bus for moving data between RAM and VRAM (cpu / gpu).
+- Very slow compared to other memory buses.
+- Avoid passing to much data back and forth.
+![[{5A5260CF-6DD2-409D-8B6B-E8CF4900E8F3}.png]]
+
+
+### Misc performance pitfalls:
+- Dont use double (8 bytes), use float (4 bytes) instead.
+- All double operations are emulated in software on most cards, only supported in hardware on enterprise GPUs.
+
+
+Profiling
+- Measure how the GPU kernels run to track occupancy, memory access, divergence, spilling and more.
+- Can use NVIDIA Nsight systems to track application timeline, and NVIDIA Nsight compute to track induvidual kernels.
+
+
+
+# 34 - Shuffle shenanigans part 2
+
+Collective instructions.
+
+### Shuffle 
+
+Shuffle shenanigans:
+- Exchanges of values within a single warp.
+- Each thread provides one value.
+- Each thread reads a value provied by one of the threads.
+- Threads must be in same block.
+- They must also be in same warp or cooperative group with max 32 threads.
+- Cheap instruction (1 cycle).
+
+```c++
+T __shfl_sync(unsigned mask, T var, int srcLane);
+
+// mask is 32 bit hex mask of what lanes participating. Eg. 0xFFFFFFFF or FULL_MASK for all threads.
+
+// var is the calling threads contribution.
+
+// which lanes contribution this thread wants
+
+
+// --- Four variants ---
+
+//Read from any thread (index specified by srcLane):
+T __shfl_sync(unsigned mask, T var, int srcLane);
+
+//Read from thread (laneid – delta):
+T __shfl_up_sync(unsigned mask, T var, unsigned int delta);
+
+//Read from thread (laneid + delta):
+T __shfl_down_sync(unsigned mask, T var, unsigned int delta);
+
+//Read from thread (laneid XOR laneMask):
+T __shfl_xor_sync(unsigned mask, T var, int laneMask);
+
+```
+
+Shuffle instructions with lanemask = 16, 8, 4, 2 ,1:
+![[{0E041D4D-C1EA-494C-AF7F-A81D268A76FB} 1.png]]
+![[{3AE9BA68-7FEF-45C0-B58D-F72D4B1AE220}.png]]
+Sum off all threads value in a warp, sum in each thread:
+![[{610B516A-7923-405B-9219-ACC8CA062275}.png]]
+
+Barriers:
+- `__syncwarp()` syncs threads within one warp.
+- `__syncthreads()` sync all threads in one block.
+
+
+Shuffle misc:
+- If the mask says a thread will call that shuffle, it must call it either in same or different branch.
+- If a thread executes shuffle but not in the mask, the results are undefined.
+
+
+
+### Shuffle applications
+
+Warp-level reductions:
+
+Broadcasting:
+![[{BBA94FBD-0B90-416B-B249-EB4348A93462}.png]]
+Bandwidth saving:
+![[{9C9C01E3-C12C-4631-BAEC-4BBA7C90AB1C}.png]]
+![[{B468F9CC-0BD1-4DED-AE12-68BB7E0D3F76}.png]]
+
+Broadcast + bandwidth saving:
+![[{F6BC8559-B3DB-4D5C-8610-51A892A7B1C5}.png]] 
+
+
+### Warp voting
+
+![[{0D6C8522-4FC6-478F-9CA0-78A53726B152}.png]]
+
+### Warp voting example use cases 
+![[{F5C15E0F-A27F-427B-BE7C-5A181AD974B1}.png]]
+![[{F6AE56C8-98DC-4EB2-921C-5030446C76E5}.png]]
+### Warp reductions
+- Reduction support in hardware, added in RTX 3000 series cards.
+- Integers only, if float use XOR reduction mode from before.
+
+![[{41FCA0D1-04F8-4BE7-B8D8-24D56904C354}.png]]
+
+### Thread cooperation:
+![[{987BE944-18B0-48CA-BAB4-3AF71DFECF33}.png]]
+
+### Cuda built in types:
+
+- Also supports 16-bit float, half precision.
+```c++
+#include <cuda_fp16.h>
+
+__half x = __float2half(1.5f); // Convert float to half
+float y = __half2float(x);    // Convert back to float
+
+// Pack two floats into each half2.
+__half2 a = __floats2half2_rn(1.0f, 2.0f);
+__half2 b = __floats2half2_rn(10.0f, 20.0f);
+
+// Add corresponding components.
+__half2 c = __hadd2(a, b);
+
+// Convert the result to two ordinary floats.
+float2 result = __half22float2(c);
+
+// result.x == 11.0f
+// result.y == 22.0f
+```
+![[{FDE73759-6D2F-4B80-9641-5387BE5C2839}.png]]
+```c++
+float3 position = make_float3(1.5f, 2.0f, 7.0f);
+
+position.x;  // 1.5
+position.y;  // 2.0
+position.z;  // 7.0
+```
+
+
+### Misc Functions:
+- Either very efficient of hardware implemented.
+```c++
+// Compute the sum of absolute differences: |x – y| + z
+unsigned int __sad(int x, int y, int z);
+
+
+// Compute the average of two integers
+// Guaranteed to not overflow
+unsigned int __uhadd(unsigned int x, unsigned int y);
+
+// --float--
+
+// The remainder of a/b
+float remainder(float a, float b);
+
+// Computes sqrt(a*a + b*b + c*c)
+float norm3df(float a, float b, float c);
+
+// Calculate a x y + z
+// Useful because it only rounds at the end
+float ___fmaf_rz(float a, float y, float z);
+
+
+
+// --- bit ops ---
+
+// Find the index with the first bit set to 1
+int __ffs(int x);
+
+
+// Count leading zeroes (starting from the least significant bit)
+int __clz(int x);
+
+
+// Find the position of the {offset}th bit set to 1
+// Counting starts at index base
+unsigned int __fns(unsigned int x, unsigned int base, int offset);
+
+```

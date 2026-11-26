@@ -30,6 +30,7 @@ Chapter 1: Fundamentals of Quantatative design and analysis
 ### The computer revolution:
 
 Moores law:
+- is the observation that the number of transistors on a computer chip roughly doubles every two years.
 
 
 ### Classes of computers
@@ -248,7 +249,190 @@ RISC-V ISA:
 - imm: Constant value, included in the instruction.
 
 
-
 ### Classifying ISAs
 
 
+How many registers:
+- Depends, but quite a few. 16-32 architectural general purpose registers, 100+ physical registers.
+
+
+Load-store (Register-register) architecture:
+- 0 memory addresses, max 3 register operands.
+- Simple fixed length instructions.
+- Instructions also take similar number of clocks to execute.
+- Higher instruction count, as you need seperate instructions for loading and storing values from memory. Also may lead to less of the program fitting in instruction cache.
+- E.g: ARM, MIPS, RISC-V.
+
+```asm
+LOAD  R1, [A]       ; R1 = value at A
+LOAD  R2, [B]       ; R2 = value at B
+ADD   R3, R1, R2    ; R3 = R1 + R2
+STORE [C], R3       ; save result at C
+```
+
+
+Register-memory:
+- Max 1 Memory address, max 2 operands.
+- Data can be accessed without seperate load/store instruction.
+- Tends to have easy encoding and good instruction density.
+- Intel 80x86.
+- Cons: Two operand format often leads to values being overwritten. Asøp execution time varies as operations involving memory access can be slow.
+
+```asm
+LOAD  R1, [A]       ; R1 = value at A
+ADD   R1, [B]       ; R1 = R1 + value at B
+STORE [C], R1       ; save result at C
+```
+
+
+Memory-memory:
+- Either max 2/3 memory address, and max 2/3 operands allowed.
+- Most compact, and doesnt waste registers.
+- Cons: Large variation in instruction size, and large variation in work per instruction. The memory accesses create memory bottleneck.
+
+```asm
+ADD [C], [A], [B]   ; value at C = value at A + value at B
+```
+
+
+### Memory addressing
+
+
+Big endian (numbers in correct order):
+- Least significant byte first. 
+- Double word: 0123 4567
+
+Little endian (most common):
+- Most significant byte first.
+- Double word: 7654 3210
+
+Alignment:
+- An address `A` of an object with size `s` is alligned if `A mod s == 0`.
+- Simplfies implenentation. Improves speed by using some more storage.
+
+Addressing modes:
+- Register `add r1, r2, r3`.
+- Immediate `addi r5, r4, 5`.
+	- Immediate fields should be 8-16 bits.
+- Displacement `lw x3, 8(x1)`.
+	- Displacement should support 12-16 bits offset.
+- Register indirect `lw x3, 0(x1)`.
+- Pc relative `beq x1, x2, label`
+
+
+### ISA operations:
+
+
+Arithmetic and logical:
+- Add, subtract, and, or, multiply, divide.
+
+Data transfer:
+- Load, store.
+
+Control:
+- Branch, jumps, traps, procedure call and return.
+
+System:
+- Operating system call, virtual memory management instructions.
+
+Floating point:
+- Add, multiply, divide, compare.
+
+Decimal:
+- Add, multiply, decimal to character conversion.
+
+String:
+- Move, compare, search.
+
+Graphics: 
+- Pixel and vertex operations.
+
+
+![[{F759E511-B99C-4829-95E6-23AAB9A56C02}.png]]
+
+
+Operand type and size:
+- Opcode in the instruction tells what operand types.
+- Integer size: 32- or 64- bit (word size).
+- Floating point, 32 (float) or 64 bit (double).
+- Characters: 1 byte ASCII or 2byte+ unicode.
+- Decimal: Accuracy for business applications.
+
+
+Control flow:
+- Conditional branches. `beq x1, x2, label`
+- Jumps. `jal x0, label`
+- Procedure calls (jump but saved address). `jal ra, function`
+- Procedure returns (return to saved address). `jalr x0, 0(ra)`
+- Branches are typically less than 10 bits of displacement away. Larger than 12 bit must use absolute address from register (lui with 12 bit offset in jump).
+
+```
+@ --- Registers ---
+
+@ x10–x11 (a0–a1): Return values
+@ x10–x17 (a0–a7): Parameters passed
+
+@ x1 (ra): Caller saved
+@ x5–x7, x28–x31 (t0–t6): Caller saved / temporaries
+@ x10–x17 (a0–a7): Caller saved
+
+@ x8–x9, x18–x27 (s0–s11): Callee saved
+@ x2 (sp): Stack pointer; callee saved
+
+@ x0 (zero): Always zero; writes are discarded
+@ x1 (ra): Return address (like ARM's LR)
+@ x3 (gp): Global pointer; reserved
+@ x4 (tp): Thread pointer; reserved
+@ x8 (s0/fp): Optional frame pointer; callee saved
+
+@ PC: Separate program counter, not one of x0–x31
+```
+
+Comparisons in branches:
+- Not equal.
+- Equal.
+- Greater than or equal.
+- Greater than.
+- Less than or equal.
+- Less than.
+
+
+Memory layout:
+![[{3741CDF1-41C8-49A5-A19D-028BD076F98D}.png]]
+
+
+
+### Encoding an ISA
+
+
+Overall summary of requirements:
+- Load store.
+- Addressing modes: Displacement, immediate and register indirect addressing modes.
+- Support for 8/16/32 and 64 bit integers and 32/64 bit floating point.
+- Need instructions for: 
+	- Arithmetic.
+	- Memory: Load store.
+	- Pc relative conditionals.
+	- Jump and link, with procedure return.
+
+
+The encoding must balance:
+- Many registers and addressing modes as possible.
+- Instructions should be easy to decode.
+- Fixed size instructions is preferred, 32 bits in riscv (for embedded devices, variable length instruction sets such as arm thumb are useful).
+
+
+
+### The RISC-V ISA
+
+Overall:
+- General purpose register model, and load-store architecture.
+- Supports displacement, immediate and register-indirect addressing.
+- Supports 8-, 16-, 32- and 64-bit integers and 32- and 64-bit floating point data types.
+- Focus on the simple, dominating instructions load, store, add, subtract, move register-register and shift.
+- Branching and compare according to the analysis.
+- At least 16 (preferably 32) registers. Orthogonal, minimalist ISA.
+
+![[{69A33151-FE20-409F-9DE4-405F4A013C6F}.png]]
+![[{FED2A542-E3FD-4D77-9039-D0819A596468}.png]]
+![[{69E4BA7E-BAED-45E8-867A-5DEF1E4813C7}.png]]![[{F4D23D75-5116-4A22-842D-21622099A9EB}.png]]
