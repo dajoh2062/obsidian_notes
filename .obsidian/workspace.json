@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Low_level_Notes/Shortform notes.md",
+                "file": "Low_level_Notes/Temp.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Shortform notes"
+              "title": "Temp"
             }
           }
         ]
@@ -83,7 +83,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 200
+    "width": 213.53124523162842
   },
   "right": {
     "id": "99259698128e5234",
@@ -190,8 +190,9 @@
   },
   "active": "98481d5924f01eb6",
   "lastOpenFiles": [
-    "Low_level_Notes/Exam notes.md",
     "Low_level_Notes/Shortform notes.md",
+    "Low_level_Notes/Temp.md",
+    "Low_level_Notes/Exam notes.md",
     "{CD6EBBA5-BF82-4597-9DFD-E89F2B645FE2}.png",
     "{DC45051D-03FA-4BAF-BAC3-3DC555F5997E}.png",
     "{03B7A12F-D90A-445D-9E5F-2BD2BD3D2C38}.png",
